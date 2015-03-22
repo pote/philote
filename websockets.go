@@ -11,9 +11,6 @@ import(
 )
 
 func ServeWebSocket(ws *websocket.Conn) {
-  // We need to spawn one goroutine to listen to messages from Redis
-  // and write them to this connection and another one to listen to messages
-  // in this connection and write them to redis.
   if _, _, err := RoutingInfo(ws.Request().URL.Path); err != nil {
     log.Fatal(err)
     ws.Close()
