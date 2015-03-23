@@ -4,7 +4,6 @@ import(
   "code.google.com/p/go-uuid/uuid"
   "errors"
   "github.com/garyburd/redigo/redis"
-  "github.com/pote/chronicler"
   "github.com/pote/redisurl"
   "golang.org/x/net/websocket"
   "net/http"
