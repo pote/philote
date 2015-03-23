@@ -20,3 +20,8 @@ $ ./philote
 The websocket server will then start running in `$PORT`, it expects to receive
 connections at  `ws://localhost:$PORT/<hub_identifier>/<room>`, of course
 connections that subscribe to the same room will receive each other's messages.
+
+
+## See it in action
+
+http://stuff.poteland.com/YvYDJ5HYha.mp4
