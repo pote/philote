@@ -7,7 +7,7 @@ websocket connections that have two-way communication between them.
 
 ``` bash
 $ source .env.sample # you might want to copy it to .env if you plan on changing the settings)
-$ go get
+$ gpm install
 ```
 
 ## Build it, run it.
