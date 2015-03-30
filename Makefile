@@ -17,8 +17,11 @@ clean:
 
 dependencies: $(DEPS)
 
-$(DEPS): Godeps
+$(DEPS): Godeps | $(dir $(DEPS))
 	gpm install
 	touch $@
+
+$(dir $(DEPS)):
+	mkdir -p $@
 
 .PHONY: run test clean dependencies
