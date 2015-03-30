@@ -44,3 +44,12 @@ func ParseAccessToken(tokenString string) (at *AccessToken, err error) {
 
 	return
 }
+
+func (at *AccessToken) CanAccess(channel string) bool {
+	for _, c := range at.Channels {
+		if c == channel {
+			return true
+		}
+	}
+	return false
+}

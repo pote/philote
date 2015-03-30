@@ -73,7 +73,7 @@ func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 }
 
 func ReceiveMessages(identifier string, ws *websocket.Conn) {
-	_, err := TokenFromConn(ws)
+	token, err := TokenFromConn(ws)
 
 	if err != nil {
 		log.Fatal(err)
@@ -84,8 +84,10 @@ func ReceiveMessages(identifier string, ws *websocket.Conn) {
 		var message *Message
 		websocket.JSON.Receive(ws, &message)
 
-		c := RedisPool.Get()
-		c.Do("PUBLISH", message.Channel+":"+identifier, message.Data)
-		c.Close()
+		if token.CanAccess(message.Channel) {
+			c := RedisPool.Get()
+			c.Do("PUBLISH", message.Channel+":"+identifier, message.Data)
+			c.Close()
+		}
 	}
 }
