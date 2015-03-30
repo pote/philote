@@ -17,10 +17,8 @@ func TestRoutingInfo(t *testing.T) {
 		return
 	}
 
-	// FIXME: c should actually be ['chat', 'updates'], but we're ignoring
-	// that it's an array for now.
-	if c != "chat" {
-		t.Error("Expected channel to be 'chat', but was:", c)
+	if len(c) != 2 || c[0] != "chat" || c[1] != "updates" {
+		t.Error("Expected channels to be ['chat', 'updates'], but was:", c)
 		return
 	}
 }

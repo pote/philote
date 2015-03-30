@@ -31,19 +31,22 @@ func main() {
 }
 
 func ServeWebSocket(ws *websocket.Conn) {
-	if _, _, err := RoutingInfo(getRequestToken(ws.Request())); err != nil {
+	_, channels, err := RoutingInfo(ws.Request().FormValue("token"))
+
+	if err != nil {
 		log.Fatal(err)
 		ws.Close()
 	}
-	identifier := uuid.New()
 
-	go ReceiveMessages(identifier, ws)
-	go DispatchMessages(identifier, ws)
+	connectionId := uuid.New()
+	for _, channel := range channels {
+		go ReceiveMessages(channel, connectionId, ws)
+		go DispatchMessages(channel, connectionId, ws)
+	}
 	select {}
 }
 
-func DispatchMessages(identifier string, ws *websocket.Conn) {
-	_, channel, _ := RoutingInfo(getRequestToken(ws.Request()))
+func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 	pubSub := redis.PubSubConn{Conn: RedisPool.Get()}
 	pubSub.PSubscribe(channel + ":*")
 
@@ -57,9 +60,7 @@ func DispatchMessages(identifier string, ws *websocket.Conn) {
 	}
 }
 
-func ReceiveMessages(identifier string, ws *websocket.Conn) {
-	_, channel, _ := RoutingInfo(getRequestToken(ws.Request()))
-
+func ReceiveMessages(channel, identifier string, ws *websocket.Conn) {
 	for {
 		var message string
 		websocket.Message.Receive(ws, &message)
@@ -70,17 +71,7 @@ func ReceiveMessages(identifier string, ws *websocket.Conn) {
 	}
 }
 
-func getRequestToken(req *http.Request) (token string) {
-	if tokens, ok := req.Form["token"]; ok {
-		return tokens[len(tokens)-1]
-	} else {
-		return ""
-	}
-}
-
-// FIXME: This should return multiple channels, so that we start listening on
-// all of them.
-func RoutingInfo(at string) (hub, channel string, err error) {
+func RoutingInfo(at string) (hub string, channels []string, err error) {
 	token, err := ParseAccessToken(at)
 
 	if err != nil {
@@ -88,7 +79,7 @@ func RoutingInfo(at string) (hub, channel string, err error) {
 	}
 
 	hub = token.Hub
-	channel = token.Channels[0]
+	channels = token.Channels
 
 	return
 }
