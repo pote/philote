@@ -2,12 +2,11 @@ PROGNAME ?= philote
 SOURCES = main.go access_token.go
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 
-$(PROGNAME): $(SOURCES) $(DEPS)
-	mkdir -p $(@D)
-	go build -o $@
+$(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
+	go build -o $(PROGNAME)
 
 run: $(PROGNAME)
-	$(PROGNAME)
+	./$(PROGNAME)
 
 test: $(PROGNAME) $(SOURCES)
 	go test
@@ -22,6 +21,9 @@ $(DEPS): Godeps | $(dir $(DEPS))
 	touch $@
 
 $(dir $(DEPS)):
+	mkdir -p $@
+
+$(dir $(PROGNAME)):
 	mkdir -p $@
 
 .PHONY: run test clean dependencies
