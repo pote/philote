@@ -1,7 +1,7 @@
 PROGNAME ?= philote
 DEPS = main.go
 
-$(PROGNAME): $(DEPS)
+$(PROGNAME): $(DEPS) .dependencies/up-to-date
 	mkdir -p $(@D)
 	go build -o $@
 
@@ -13,5 +13,9 @@ test: $(DEPS)
 
 clean:
 	rm $(PROGNAME)
+
+.dependencies/up-to-date: Godeps
+	gpm install
+	touch $@
 
 .PHONY: run test clean
