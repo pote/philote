@@ -2,7 +2,6 @@ package main
 
 import (
 	"code.google.com/p/go-uuid/uuid"
-	"errors"
 	"github.com/garyburd/redigo/redis"
 	"github.com/pote/redisurl"
 	"golang.org/x/net/websocket"
@@ -10,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"strings"
 )
 
 var RedisPool *redis.Pool = SetupRedis()
@@ -33,7 +31,7 @@ func main() {
 }
 
 func ServeWebSocket(ws *websocket.Conn) {
-	if _, _, err := RoutingInfo(ws.Request().URL.Path); err != nil {
+	if _, _, err := RoutingInfo(getRequestToken(ws.Request())); err != nil {
 		log.Fatal(err)
 		ws.Close()
 	}
@@ -45,7 +43,7 @@ func ServeWebSocket(ws *websocket.Conn) {
 }
 
 func DispatchMessages(identifier string, ws *websocket.Conn) {
-	_, channel, _ := RoutingInfo(ws.Request().URL.Path)
+	_, channel, _ := RoutingInfo(getRequestToken(ws.Request()))
 	pubSub := redis.PubSubConn{Conn: RedisPool.Get()}
 	pubSub.PSubscribe(channel + ":*")
 
@@ -60,7 +58,7 @@ func DispatchMessages(identifier string, ws *websocket.Conn) {
 }
 
 func ReceiveMessages(identifier string, ws *websocket.Conn) {
-	_, channel, _ := RoutingInfo(ws.Request().URL.Path)
+	_, channel, _ := RoutingInfo(getRequestToken(ws.Request()))
 
 	for {
 		var message string
@@ -72,20 +70,25 @@ func ReceiveMessages(identifier string, ws *websocket.Conn) {
 	}
 }
 
-func RoutingInfo(path string) (org, channel string, err error) {
-	sections := strings.Split(path, "/")
-	if len(sections) < 3 {
-		err = errors.New("Connection needs to request an org/channel pair in path")
+func getRequestToken(req *http.Request) (token string) {
+	if tokens, ok := req.Form["token"]; ok {
+		return tokens[len(tokens)-1]
+	} else {
+		return ""
+	}
+}
+
+// FIXME: This should return multiple channels, so that we start listening on
+// all of them.
+func RoutingInfo(at string) (hub, channel string, err error) {
+	token, err := ParseAccessToken(at)
+
+	if err != nil {
 		return
 	}
 
-	routingInfo := []string{
-		sections[1],
-		sections[2],
-	}
-
-	org = sections[1]
-	channel = strings.Join(routingInfo, ":")
+	hub = token.Hub
+	channel = token.Channels[0]
 
 	return
 }
