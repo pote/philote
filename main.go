@@ -31,7 +31,7 @@ func main() {
 }
 
 func ServeWebSocket(ws *websocket.Conn) {
-	_, channels, err := RoutingInfo(ws.Request().FormValue("token"))
+	token, err := TokenFromConn(ws)
 
 	if err != nil {
 		log.Fatal(err)
@@ -39,11 +39,19 @@ func ServeWebSocket(ws *websocket.Conn) {
 	}
 
 	connectionId := uuid.New()
-	for _, channel := range channels {
-		go ReceiveMessages(channel, connectionId, ws)
+
+	go ReceiveMessages(connectionId, ws)
+
+	for _, channel := range token.Channels {
 		go DispatchMessages(channel, connectionId, ws)
 	}
 	select {}
+}
+
+type Message struct {
+	UUID    string `json:"id"`
+	Channel string `json:"channel"`
+	Data    string `json:"data"`
 }
 
 func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
@@ -51,35 +59,33 @@ func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 	pubSub.PSubscribe(channel + ":*")
 
 	for {
-		switch m := pubSub.Receive().(type) {
+		switch event := pubSub.Receive().(type) {
 		case redis.PMessage:
-			if m.Channel != channel+":"+identifier {
-				websocket.Message.Send(ws, string(m.Data))
+			if event.Channel != channel+":"+identifier {
+				websocket.JSON.Send(ws, &Message{
+					UUID:    uuid.New(),
+					Channel: channel,
+					Data:    string(event.Data),
+				})
 			}
 		}
 	}
 }
 
-func ReceiveMessages(channel, identifier string, ws *websocket.Conn) {
-	for {
-		var message string
-		websocket.Message.Receive(ws, &message)
-
-		c := RedisPool.Get()
-		c.Do("PUBLISH", channel+":"+identifier, message)
-		c.Close()
-	}
-}
-
-func RoutingInfo(at string) (hub string, channels []string, err error) {
-	token, err := ParseAccessToken(at)
+func ReceiveMessages(identifier string, ws *websocket.Conn) {
+	_, err := TokenFromConn(ws)
 
 	if err != nil {
-		return
+		log.Fatal(err)
+		ws.Close()
 	}
 
-	hub = token.Hub
-	channels = token.Channels
+	for {
+		var message *Message
+		websocket.JSON.Receive(ws, &message)
 
-	return
+		c := RedisPool.Get()
+		c.Do("PUBLISH", message.Channel+":"+identifier, message.Data)
+		c.Close()
+	}
 }

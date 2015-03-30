@@ -3,11 +3,16 @@ package main
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/net/websocket"
 )
 
 type AccessToken struct {
 	Hub      string
 	Channels []string
+}
+
+func TokenFromConn(conn *websocket.Conn) (*AccessToken, error) {
+	return ParseAccessToken(conn.Request().FormValue("token"))
 }
 
 func ParseAccessToken(tokenString string) (at *AccessToken, err error) {
