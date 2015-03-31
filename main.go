@@ -40,6 +40,8 @@ func ServeWebSocket(ws *websocket.Conn) {
 
 	connectionId := uuid.New()
 
+	LogMsg("Connected and listening", connectionId)
+
 	go ReceiveMessages(connectionId, ws)
 
 	for _, channel := range token.Channels {
@@ -62,6 +64,7 @@ func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 		switch event := pubSub.Receive().(type) {
 		case redis.PMessage:
 			if event.Channel != channel+":"+identifier {
+				LogMsg("Received message from redis on '%s'", identifier, channel)
 				websocket.JSON.Send(ws, &Message{
 					UUID:    uuid.New(),
 					Channel: channel,
@@ -84,10 +87,17 @@ func ReceiveMessages(identifier string, ws *websocket.Conn) {
 		var message *Message
 		websocket.JSON.Receive(ws, &message)
 
+		LogMsg("Received message from socket on '%s'", identifier, message.Channel)
+
 		if token.CanAccess(message.Channel) {
 			c := RedisPool.Get()
 			c.Do("PUBLISH", message.Channel+":"+identifier, message.Data)
 			c.Close()
 		}
 	}
+}
+
+func LogMsg(message, connection string, args ...interface{}) {
+	args = append([]interface{}{connection}, args...)
+	log.Printf("[%s] "+message+"\n", args...)
 }
