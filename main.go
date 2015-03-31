@@ -42,12 +42,16 @@ func ServeWebSocket(ws *websocket.Conn) {
 
 	LogMsg("Connected and listening", connectionId)
 
-	go ReceiveMessages(connectionId, ws)
+	done := make(chan bool)
+
+	go ReceiveMessages(connectionId, ws, done)
 
 	for _, channel := range token.Channels {
 		go DispatchMessages(channel, connectionId, ws)
 	}
-	select {}
+
+	<-done
+	LogMsg("Disconnected", connectionId)
 }
 
 type Message struct {
@@ -59,6 +63,7 @@ type Message struct {
 func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 	pubSub := redis.PubSubConn{Conn: RedisPool.Get()}
 	pubSub.PSubscribe(channel + ":*")
+	defer pubSub.Close()
 
 	for {
 		switch event := pubSub.Receive().(type) {
@@ -75,7 +80,7 @@ func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
 	}
 }
 
-func ReceiveMessages(identifier string, ws *websocket.Conn) {
+func ReceiveMessages(identifier string, ws *websocket.Conn, done chan bool) {
 	token, err := TokenFromConn(ws)
 
 	if err != nil {
@@ -85,7 +90,13 @@ func ReceiveMessages(identifier string, ws *websocket.Conn) {
 
 	for {
 		var message *Message
-		websocket.JSON.Receive(ws, &message)
+		err = websocket.JSON.Receive(ws, &message)
+
+		if err != nil {
+			done <- true
+			LogMsg("Received client disconnection", identifier)
+			return
+		}
 
 		LogMsg("Received message from socket on '%s'", identifier, message.Channel)
 
