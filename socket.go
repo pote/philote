@@ -87,6 +87,7 @@ func (s *Socket) ListenToRedis() {
 			case "close":
 				if event.Channel == s.redisChannel() {
 					rConn.PUnsubscribe(s.redisPattern())
+					rConn.Close()
 					break
 				}
 			}
