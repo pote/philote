@@ -3,6 +3,7 @@ package main
 import (
 	"code.google.com/p/go-uuid/uuid"
 	"encoding/json"
+	"errors"
 	"github.com/garyburd/redigo/redis"
 	"golang.org/x/net/websocket"
 	"log"
@@ -26,12 +27,14 @@ func NewSocket(ws *websocket.Conn) (socket *Socket, err error) {
 	tokenString := ws.Request().FormValue("token")
 
 	if tokenString == "" {
+		err = errors.New("Need a `token` query parameter when connecting")
 		logMsg("[FATAL] Connection didn't send token param", "new")
 		ws.Close()
 		return
 	}
 
-	token, err := ParseAccessToken(tokenString)
+	var token *AccessToken
+	token, err = ParseAccessToken(tokenString)
 
 	if err != nil {
 		logMsg("[FATAL] Can't parse connection token: %s", "new", err)
