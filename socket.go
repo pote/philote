@@ -13,7 +13,6 @@ type Socket struct {
 	Token *AccessToken
 	done  chan bool
 	ws    *websocket.Conn
-	redis redis.PubSubConn
 }
 
 type Message struct {
@@ -45,10 +44,10 @@ func NewSocket(ws *websocket.Conn) (socket *Socket, err error) {
 }
 
 func (s *Socket) ListenToRedis() {
-	s.redis = redis.PubSubConn{Conn: RedisPool.Get()}
-	defer s.redis.Close()
+	rConn := redis.PubSubConn{Conn: RedisPool.Get()}
+	defer rConn.Close()
 
-	s.redis.PSubscribe(s.redisPattern())
+	rConn.PSubscribe(s.redisPattern())
 
 	var (
 		message *Message
@@ -56,7 +55,7 @@ func (s *Socket) ListenToRedis() {
 	)
 
 	for {
-		switch event := s.redis.Receive().(type) {
+		switch event := rConn.Receive().(type) {
 		case redis.PMessage:
 			err = json.Unmarshal(event.Data, &message)
 
@@ -76,7 +75,7 @@ func (s *Socket) ListenToRedis() {
 				websocket.JSON.Send(s.ws, &message)
 			case "close":
 				if event.Channel == s.redisChannel() {
-					s.redis.PUnsubscribe(s.redisPattern())
+					rConn.PUnsubscribe(s.redisPattern())
 					break
 				}
 			}
