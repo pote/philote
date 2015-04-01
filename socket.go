@@ -23,7 +23,15 @@ type Message struct {
 }
 
 func NewSocket(ws *websocket.Conn) (socket *Socket, err error) {
-	token, err := ParseAccessToken(ws.Request().FormValue("token"))
+	tokenString := ws.Request().FormValue("token")
+
+	if tokenString == "" {
+		logMsg("[FATAL] Connection didn't send token param", "new")
+		ws.Close()
+		return
+	}
+
+	token, err := ParseAccessToken(tokenString)
 
 	if err != nil {
 		logMsg("[FATAL] Can't parse connection token: %s", "new", err)
