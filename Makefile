@@ -1,5 +1,5 @@
 PROGNAME ?= philote
-SOURCES = main.go access_token.go
+SOURCES = main.go access_token.go socket.go
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 
 $(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
