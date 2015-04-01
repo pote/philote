@@ -116,9 +116,7 @@ func (s *Socket) ListenToSocket() {
 		logMsg("Received message from socket on '%s'", s.ID, message.Channel)
 
 		if s.Token.CanAccess(message.Channel) {
-			c := RedisPool.Get()
-			c.Do("PUBLISH", s.redisChannel(), data)
-			c.Close()
+			s.redisPub(data)
 		}
 	}
 }
@@ -127,9 +125,7 @@ func (s *Socket) disconnect() {
 	message := &Message{Event: "close"}
 	data, _ := json.Marshal(message)
 
-	c := RedisPool.Get()
-	c.Do("PUBLISH", s.redisChannel(), data)
-	c.Close()
+	s.redisPub(data)
 
 	logMsg("Disconnecting from client", s.ID)
 	close(s.done)
@@ -148,6 +144,12 @@ func (s *Socket) redisChannel() string {
 // Internal: Pattern to PSUBSCRIBE to in redis events.
 func (s *Socket) redisPattern() string {
 	return s.Token.Hub + ":*"
+}
+
+func (s *Socket) redisPub(data interface{}) {
+	conn := RedisPool.Get()
+	conn.Do("PUBLISH", s.redisChannel(), data)
+	conn.Close()
 }
 
 func logMsg(message, connection string, args ...interface{}) {
