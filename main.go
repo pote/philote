@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/go-uuid/uuid"
+	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"github.com/pote/redisurl"
 	"golang.org/x/net/websocket"
@@ -45,10 +46,7 @@ func ServeWebSocket(ws *websocket.Conn) {
 	done := make(chan bool)
 
 	go ReceiveMessages(connectionId, ws, done)
-
-	for _, channel := range token.Channels {
-		go DispatchMessages(channel, connectionId, ws)
-	}
+	go DispatchMessages(token.Hub, connectionId, ws)
 
 	<-done
 	LogMsg("Disconnected", connectionId)
@@ -58,23 +56,42 @@ type Message struct {
 	UUID    string `json:"id"`
 	Channel string `json:"channel"`
 	Data    string `json:"data"`
+	Event   string `json:"event,omitempty"`
 }
 
-func DispatchMessages(channel, identifier string, ws *websocket.Conn) {
+func DispatchMessages(hub, identifier string, ws *websocket.Conn) {
 	pubSub := redis.PubSubConn{Conn: RedisPool.Get()}
-	pubSub.PSubscribe(channel + ":*")
 	defer pubSub.Close()
+
+	pubSub.PSubscribe(hub + ":*")
+
+	var message *Message
+	var err error
 
 	for {
 		switch event := pubSub.Receive().(type) {
 		case redis.PMessage:
-			if event.Channel != channel+":"+identifier {
-				LogMsg("Received message from redis on '%s'", identifier, channel)
-				websocket.JSON.Send(ws, &Message{
-					UUID:    uuid.New(),
-					Channel: channel,
-					Data:    string(event.Data),
-				})
+			err = json.Unmarshal(event.Data, &message)
+
+			if err != nil {
+				continue
+			}
+
+			switch message.Event {
+			case "message":
+				if event.Channel == hub+":"+identifier {
+					continue
+				}
+
+				LogMsg("Received message from redis on '%s'", identifier, hub)
+				websocket.JSON.Send(ws, &message)
+			case "close":
+				if event.Channel == hub+":"+identifier {
+					pubSub.PUnsubscribe(hub + ":*")
+					break
+				}
+			default:
+				log.Println(message)
 			}
 		}
 	}
@@ -89,20 +106,40 @@ func ReceiveMessages(identifier string, ws *websocket.Conn, done chan bool) {
 	}
 
 	for {
+		var data []byte
 		var message *Message
-		err = websocket.JSON.Receive(ws, &message)
+
+		err = websocket.Message.Receive(ws, &data)
 
 		if err != nil {
-			done <- true
+			message = &Message{Event: "close"}
+			data, err = json.Marshal(message)
+
+			c := RedisPool.Get()
+			c.Do("PUBLISH", token.Hub+":"+identifier, data)
+			c.Close()
+
 			LogMsg("Received client disconnection", identifier)
+
+			done <- true
+
 			return
+		}
+
+		err = json.Unmarshal(data, &message)
+
+		message.Event = "message"
+
+		if err != nil {
+			LogMsg("Client message with wrong format", identifier)
+			continue
 		}
 
 		LogMsg("Received message from socket on '%s'", identifier, message.Channel)
 
 		if token.CanAccess(message.Channel) {
 			c := RedisPool.Get()
-			c.Do("PUBLISH", message.Channel+":"+identifier, message.Data)
+			c.Do("PUBLISH", token.Hub+":"+identifier, data)
 			c.Close()
 		}
 	}
