@@ -12,9 +12,16 @@ type AccessToken struct {
 
 func ParseAccessToken(tokenString string) (at *AccessToken, err error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		// Has to return the Hub's Secret Key (can access t.Claims["hub"] to get
-		// the hub's Access Key.)
-		return []byte("deadbeefsecret"), nil
+		redis := RedisPool.Get()
+		defer redis.Close()
+
+		key, err := redis.Do("GET", "hubs:"+t.Claims["hub"].(string))
+
+		if key == nil {
+			err = errors.New("[SECURITY] Couldn't find hub matching credentials")
+		}
+
+		return key, err
 	})
 
 	if err != nil {
