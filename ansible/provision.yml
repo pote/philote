@@ -1,0 +1,28 @@
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: Install 13F's access keys
+      authorized_key: user=ubuntu
+                      key="https://github.com/{{ item }}.keys"
+      with_items:
+        - elcuervo
+        - alfonsocora
+        - diablourbano
+        - sntaln
+        - foca
+        - pote
+        - jane-13
+
+- hosts: philote
+  sudo: yes
+  tasks:
+    - name: Copy App's Upstart file
+      copy: src=files/philote.upstart.conf
+            dest=/etc/init/philote.conf
+            mode=0700
+
+    - name: Create app dir.
+      file: name=/var/www/philote
+            state=directory
+            owner=ubuntu
+

@@ -26,4 +26,17 @@ $(dir $(DEPS)):
 $(dir $(PROGNAME)):
 	mkdir -p $@
 
-.PHONY: run test clean dependencies
+##
+# Provisioning and Deploy
+##
+
+provision:
+	ansible-playbook -i ansible/inventory ansible/provision.yml
+
+deploy: ansible/files/philote
+	ansible-playbook -i ansible/inventory ansible/deploy.yml
+
+ansible/files/philote:
+	GOOS=linux GOARCH=amd64 go build -o $@
+
+.PHONY: run test clean dependencies deploy provision ansible/files/philote

@@ -1,0 +1,5 @@
+[philote]
+52.88.44.169
+
+[philote:vars]
+ansible_ssh_user=ubuntu
