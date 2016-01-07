@@ -1,6 +1,7 @@
 PROGNAME ?= philote
 SOURCES = main.go access_token.go socket.go
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
+GPM ?= gpm
 
 $(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o $(PROGNAME)
@@ -17,7 +18,7 @@ clean:
 dependencies: $(DEPS)
 
 $(DEPS): Godeps | $(dir $(DEPS))
-	gpm install
+	$(GPM) get
 	touch $@
 
 $(dir $(DEPS)):
