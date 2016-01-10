@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"code.google.com/p/go-uuid/uuid"
+	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"golang.org/x/net/websocket"
 	"log"
