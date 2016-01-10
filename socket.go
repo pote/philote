@@ -8,11 +8,11 @@ import (
 )
 
 type Socket struct {
-	Token    string
-	ID       string
-	Channels []string `json:"channels"`
-	ws       *websocket.Conn
-	done     chan bool
+	Token    string          `json:"-"`
+	ID       string          `json:"-"`
+	Channels []string        `json:"channels"`
+	ws       *websocket.Conn `json:"-"`
+	done     chan bool       `json:"-"`
 }
 
 type Message struct {

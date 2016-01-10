@@ -39,7 +39,7 @@ func ServeWebSocket(ws *websocket.Conn) {
 	}
 
 	r := RedisPool.Get()
-	rawSocket, err := redis.String(r.Do("GET", segs[1]))
+	rawSocket, err := redis.String(r.Do("GET", "philote:" + segs[1]))
 	r.Close()
 	if err != nil {
 		log.Println(err.Error())
