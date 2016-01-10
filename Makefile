@@ -1,5 +1,5 @@
 PROGNAME ?= philote
-SOURCES = main.go access_token.go socket.go
+SOURCES = *.go
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
