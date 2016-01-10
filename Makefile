@@ -6,7 +6,7 @@ GPM ?= gpm
 $(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o $(PROGNAME)
 
-run: $(PROGNAME)
+server: $(PROGNAME)
 	./$(PROGNAME)
 
 test: $(PROGNAME) $(SOURCES)
