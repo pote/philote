@@ -7,29 +7,34 @@ import (
 	"golang.org/x/net/websocket"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestBasicAuthorization (t *testing.T) {
 	socket := &Socket{
-		Channels: []string{"test"},
+		Channels: []string{"test-channel"},
 	}
 
 	token := uuid.New()
 	data, _ := json.Marshal(socket)
 
 	r := RedisPool.Get()
-	defer r.Close()
-
-	r.Do("SET", "philote:" + token, string(data))
-	defer r.Do("DEL", "philote" + token)
+	r.Do("SET", "philote:token:" + token, string(data))
 
 	// Test authorization against the real thing.
-	go main()
+	go main(); time.Sleep(time.Second) // Give it a second, will you?
 
 	wsConnectionURL := fmt.Sprintf("ws://localhost:%v/%v", os.Getenv("PORT"), token)
-	_, err := websocket.Dial(wsConnectionURL, "", "http://localhost")
+	ws, err := websocket.Dial(wsConnectionURL, "", "http://localhost")
 	if err != nil {
 		t.Error(err)
 	}
 
+	if !ws.IsClientConn() {
+		t.Error("created connection should be considered a client one")
+	}
+  time.Sleep(5 * time.Second) // Give it a second, will you?
+
+	r.Do("DEL", "philote" + token)
+	r.Close()
 }

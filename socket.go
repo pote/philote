@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"code.google.com/p/go-uuid/uuid"
 	"github.com/garyburd/redigo/redis"
 	"golang.org/x/net/websocket"
 	"log"
@@ -15,13 +16,30 @@ type Socket struct {
 	done     chan bool       `json:"-"`
 }
 
-type Message struct {
-	UUID    string `json:"id,omitempty"`
-	Channel string `json:"channel,omitempty"`
-	Data    string `json:"data,omitempty"`
-	Event   string `json:"event,omitempty"`
-}
+func LoadSocket(token string, ws *websocket.Conn) (*Socket, error) {
+	r := RedisPool.Get()
+	rawSocket, err := redis.String(r.Do("GET", "philote:token:" + token))
+	r.Close()
+	if err != nil {
+		return &Socket{}, err
+	}
+	
+	if rawSocket  == "" {
+		return &Socket{}, InvalidSocketTokenError{"unknown token"}
+	}
 
+	socket := &Socket{
+		ws:    ws,
+		done: make(chan bool),
+		ID: uuid.New(),
+	}
+
+	err = json.Unmarshal([]byte(rawSocket), &socket); if err != nil {
+		return socket, InvalidSocketTokenError{"invalid token data: " + err.Error()}
+	}
+
+	return socket, nil
+}
 
 func (s *Socket) ListenToRedis() {
 	rConn := redis.PubSubConn{Conn: RedisPool.Get()}
@@ -107,12 +125,12 @@ func (s *Socket) Wait() {
 
 // Internal: Actual redis Pub/Sub channel to which we will emit events.
 func (s *Socket) redisChannel() string {
-	return "philote:" + s.ID
+	return "philote:channel:" + s.ID
 }
 
 // Internal: Pattern to PSUBSCRIBE to in redis events.
 func (s *Socket) redisPattern() string {
-	return "philote:*"
+	return "philote:channel:*"
 }
 
 func (s *Socket) redisPub(data []byte) {
