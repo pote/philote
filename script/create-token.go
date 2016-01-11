@@ -11,7 +11,7 @@ import (
 )
 
 type Socket struct {
-	Channels []string `json:"channels"`
+	Channels map[string]string `json:"channels"`
 }
 
 func main() {
@@ -19,7 +19,10 @@ func main() {
 	channels := flag.String("channels", "test-channel", "comma-separated list of channels")
 	flag.Parse()
 
-	socket := &Socket{strings.Split(*channels, ",")}
+	socket := &Socket{Channels: map[string]string{}}
+	for _, channel := range strings.Split(*channels, ",") {
+		socket.Channels[channel] = "read,write"
+	}
 	data, err := json.Marshal(socket)
 
 	r, err := redisurl.Connect(); if err != nil {

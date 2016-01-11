@@ -12,7 +12,9 @@ import (
 
 func TestBasicAuthorization (t *testing.T) {
 	socket := &Socket{
-		Channels: []string{"test-channel"},
+		Channels: map[string]string{
+			"test-channel": "read,write",
+		},
 	}
 
 	token := uuid.New()

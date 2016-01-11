@@ -12,7 +12,9 @@ func TestLoadSocket(t *testing.T) {
 	defer r.Close()
 
 	socket := &Socket{
-		Channels: []string{"test-channel"},
+		Channels: map[string]string{
+			"test-channel": "read,write",
+		},
 	}
 
 	token := uuid.New()
@@ -31,8 +33,8 @@ func TestLoadSocket(t *testing.T) {
 		return
 	}
 
-	if loadedSocket.Channels[0] != "test-channel" {
-		t.Error("unexpected channel name: " + loadedSocket.Channels[0])
+	if loadedSocket.Channels["test-channel"] != "read,write" {
+		t.Errorf("unexpected channel name: %+v", loadedSocket.Channels)
 		return
 	}
 }

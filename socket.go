@@ -9,11 +9,11 @@ import (
 )
 
 type Socket struct {
-	Token    string          `json:"-"`
-	ID       string          `json:"-"`
-	Channels []string        `json:"channels"`
-	ws       *websocket.Conn `json:"-"`
-	done     chan bool       `json:"-"`
+	Token    string            `json:"-"`
+	ID       string            `json:"-"`
+	Channels map[string]string `json:"channels"`
+	ws       *websocket.Conn    `json:"-"`
+	done     chan bool          `json:"-"`
 }
 
 func LoadSocket(token string, ws *websocket.Conn) (*Socket, error) {
@@ -44,8 +44,10 @@ func LoadSocket(token string, ws *websocket.Conn) (*Socket, error) {
 func (s *Socket) redisChannels() []interface{} {
 	channels := make([]interface{}, len(s.Channels))
 
-	for index, channel := range s.Channels {
-		channels[index] = "philote:channel:" + channel
+	i := 0
+	for channel, _ := range s.Channels {
+		channels[i] = "philote:channel:" + channel
+		i = i + 1
 	}
 
 	return channels
