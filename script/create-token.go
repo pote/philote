@@ -19,7 +19,7 @@ func main() {
 	channels := flag.String("channels", "test-channel", "comma-separated list of channels")
 	flag.Parse()
 
-	socket := &Socket{strings.Split(*channels, "/")}
+	socket := &Socket{strings.Split(*channels, ",")}
 	data, err := json.Marshal(socket)
 
 	r, err := redisurl.Connect(); if err != nil {
