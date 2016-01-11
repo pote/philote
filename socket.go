@@ -110,7 +110,7 @@ func (s *Socket) ListenToSocket() {
 			}
 		}
 
-		s.logMsg("Received message from socket on '%s'", message.IssuerID)
+		s.logMsg("Received message from socket")
 
 		s.publish(message)
 	}
