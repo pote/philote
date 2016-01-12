@@ -6,7 +6,7 @@ machine:
 
 dependencies:
   pre:
-    - curl -s https://raw.githubusercontent.com/pote/gpm/v1.3.1/bin/gpm > gpm
+    - curl -s https://raw.githubusercontent.com/pote/gpm/v1.3.2/bin/gpm > gpm
     - chmod +x ./gpm
   override:
     - make dependencies
