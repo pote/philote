@@ -41,3 +41,23 @@ func (ak *AccessKey) CanWrite(channel string) bool {
 	
 	return false
 }
+
+func (ak *AccessKey) Save() error {
+	r := RedisPool.Get()
+	defer r.Close()
+
+	data, err := json.Marshal(ak); if err != nil {
+		return err
+	}
+
+	_, err =  r.Do("SET", "philote:token:" + ak.Token, string(data))
+	return err
+}
+
+func (ak *AccessKey) Delete() error {
+	r := RedisPool.Get()
+	defer r.Close()
+
+	_, err := r.Do("DEL", "philote:token:" + ak.Token)
+	return err
+}

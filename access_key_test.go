@@ -1,24 +1,14 @@
 package main
 
 import (
-	"code.google.com/p/go-uuid/uuid"
-	"encoding/json"
 	"testing"
 )
 
 func TestLoadKey(t *testing.T) {
-	accessKey := &AccessKey{
-		Read: []string{"test-channel"},
-		Write: []string{},
-		Token: uuid.New(),
-	}
+	ak, _ := newAccessKey()
+	defer ak.Delete()
 
-	data, _ := json.Marshal(accessKey)
-
-	r := RedisPool.Get()
-	r.Do("SET", "philote:token:" + accessKey.Token, string(data))
-
-	loadedKey, err := LoadKey(accessKey.Token)
+	loadedKey, err := LoadKey(ak.Token)
 
 	if err != nil {
 		t.Error(err)

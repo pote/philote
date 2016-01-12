@@ -2,7 +2,6 @@ package main
 
 import (
 	"code.google.com/p/go-uuid/uuid"
-	"encoding/json"
 	"fmt"
 	"golang.org/x/net/websocket"
 	"os"
@@ -10,33 +9,33 @@ import (
 	"time"
 )
 
-func TestBasicAuthorization (t *testing.T) {
-	accessKey := &AccessKey{
+func newAccessKey() (*AccessKey, error) {
+	ak := &AccessKey{
 		Read: []string{"test-channel"},
 		Write: []string{},
 		Token: uuid.New(),
 	}
 
-	data, _ := json.Marshal(accessKey)
+	err := ak.Save()
+	return ak, err
+}
 
-	r := RedisPool.Get()
-	r.Do("SET", "philote:token:" + accessKey.Token, string(data))
+func TestBasicAuthorization (t *testing.T) {
+	ak, _ := newAccessKey()
+	defer ak.Delete()
 
 	// Test authorization against the real thing.
 	go main(); time.Sleep(time.Second) // Give it a second, will you?
 
-	wsConnectionURL := fmt.Sprintf("ws://localhost:%v/%v", os.Getenv("PORT"), accessKey.Token)
+	wsConnectionURL := fmt.Sprintf("ws://localhost:%v/%v", os.Getenv("PORT"), ak.Token)
 	ws, err := websocket.Dial(wsConnectionURL, "", "http://localhost")
 
 	if err != nil {
 		t.Error(err)
 	}
 
+  time.Sleep(time.Second) // Give it a second, will you?
 	if !ws.IsClientConn() {
 		t.Error("created connection should be considered a client one")
 	}
-  time.Sleep(time.Second) // Give it a second, will you?
-
-	r.Do("DEL", "philote" + accessKey.Token)
-	r.Close()
 }
