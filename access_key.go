@@ -68,6 +68,9 @@ func (ak *AccessKey) UsageIsLimited() bool {
 	return ak.AllowedUses != 0
 }
 
-func (ak *AccessKey) ConsumeUsage() (int, error) {
-	return Lua.ConsumeTokenUsage(ak.Token)
+func (ak *AccessKey) ConsumeUsage() (error) {
+	uses, err :=  Lua.ConsumeTokenUsage(ak.Token)
+	ak.Uses = uses
+
+	return err
 }

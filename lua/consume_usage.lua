@@ -12,12 +12,12 @@
 
 local token = ARGV[1]
 
-access_key_raw = redis.call("GET", "philote:token:" .. token)
-if access_key_data == nil then
+local access_key_raw = redis.call("GET", "philote:token:" .. token)
+if access_key_raw == nil then
 	error("UnknownToken")
 end
 
-access_key = cjson.decode(access_key_raw)
+local access_key = cjson.decode(access_key_raw)
 
 if access_key.allowed_uses == 0 then
 	error("UnlimitedToken")
@@ -29,5 +29,5 @@ if access_key.uses + 1 > access_key.allowed_uses then
 end
 
 access_key.uses = access_key.uses + 1
-redis.call("SET", "philote:token:" .. token, cjson.encode(access_key)
+redis.call("SET", "philote:token:" .. token, cjson.encode(access_key))
 return access_key.uses

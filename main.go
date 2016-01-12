@@ -45,7 +45,7 @@ func ServeWebSocket(ws *websocket.Conn) {
 	}
 
 	if ak.UsageIsLimited() {
-		ak.Uses, err = ak.ConsumeUsage(); if err != nil {
+	err = ak.ConsumeUsage(); if err != nil {
 			log.Println(err.Error())
 			websocket.JSON.Send(ws, err.Error())
 			return

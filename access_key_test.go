@@ -37,3 +37,36 @@ func TestLoadKey(t *testing.T) {
 		return
 	}
 }
+
+func TestConsumeUsage(t *testing.T) {
+	ak, _ := createTestAccessKey()
+
+	if ak.UsageIsLimited() {
+		t.Error("AccessKey should be considered unlimited usage")
+	}
+
+	err := ak.ConsumeUsage()
+
+	if err == nil {
+		t.Error("should not be able to run #ConsumeUsage() in an unlimited AccessKey without errors")
+	}
+
+
+	// Trun key into limited access.
+	ak.AllowedUses = 1
+	ak.Save()
+
+	if !ak.UsageIsLimited() {
+		t.Error("AccessKey should be considered limited usage")
+	}
+
+	err = ak.ConsumeUsage()
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if ak.Uses != 1 {
+		t.Error("AccessKey should track it's usage")
+	}
+}
