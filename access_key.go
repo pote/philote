@@ -6,8 +6,9 @@ import (
 )
 
 type AccessKey struct {
-	Channels map[string]string  `json:"channels"`
-	Token string                `json:"-"`
+	Write []string `json:"write"`
+	Read  []string `json:"read"`
+	Token string   `json:"-"`
 }
 
 func LoadKey(token string) (*AccessKey, error) {
@@ -19,7 +20,6 @@ func LoadKey(token string) (*AccessKey, error) {
 	if err != nil {
 		return ak, err
 	}
-	
 	if rawKey  == "" {
 		return ak, InvalidTokenError{"unknown token"}
 	}
@@ -30,4 +30,14 @@ func LoadKey(token string) (*AccessKey, error) {
 	}
 
 	return ak, nil
+}
+
+func (ak *AccessKey) CanWrite(channel string) bool {
+	for _, c := range ak.Write {
+		if c == "channel" {
+			return true
+		}
+	}
+	
+	return false
 }

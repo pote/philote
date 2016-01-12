@@ -12,9 +12,8 @@ import (
 
 func TestBasicAuthorization (t *testing.T) {
 	accessKey := &AccessKey{
-		Channels: map[string]string{
-			"test-channel": "read,write",
-		},
+		Read: []string{"test-channel"},
+		Write: []string{},
 		Token: uuid.New(),
 	}
 

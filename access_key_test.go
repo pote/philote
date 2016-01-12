@@ -8,9 +8,8 @@ import (
 
 func TestLoadKey(t *testing.T) {
 	accessKey := &AccessKey{
-		Channels: map[string]string{
-			"test-channel": "read,write",
-		},
+		Read: []string{"test-channel"},
+		Write: []string{},
 		Token: uuid.New(),
 	}
 
@@ -26,13 +25,25 @@ func TestLoadKey(t *testing.T) {
 		return
 	}
 
-	if len(loadedKey.Channels) != 1 {
-		t.Error("invalid number of channels retrieved")
+	if len(loadedKey.Write) != 0 {
+		t.Error("invalid number of permissions retrieved")
 		return
 	}
 
-	if loadedKey.Channels["test-channel"] != "read,write" {
-		t.Errorf("unexpected channel name: %+v", loadedKey.Channels)
+	if len(loadedKey.Read) != 1 {
+		t.Error("unexpected number of readable channels")
+		return
+		
+	}
+
+	if loadedKey.Read[0] != "test-channel" {
+		t.Error("unexpected readable channels")
+		return
+		
+	}
+
+	if loadedKey.CanWrite("test-channel") {
+		t.Error("key should not be able to write to channel")
 		return
 	}
 }

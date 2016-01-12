@@ -27,10 +27,10 @@ func NewSocket(ak *AccessKey, ws *websocket.Conn) (*Socket) {
 }
 
 func (s *Socket) redisChannels() []interface{} {
-	channels := make([]interface{}, len(s.AccessKey.Channels))
+	channels := make([]interface{}, len(s.AccessKey.Read))
 
 	i := 0
-	for channel, _ := range s.AccessKey.Channels {
+	for _, channel := range s.AccessKey.Read {
 		channels[i] = "philote:channel:" + channel
 		i = i + 1
 	}
@@ -97,7 +97,9 @@ func (s *Socket) ListenToSocket() {
 
 		s.logMsg("Received message from socket")
 
-		s.publish(message)
+		if s.AccessKey.CanWrite(message.Channel) {
+			s.publish(message)
+		}
 	}
 }
 
