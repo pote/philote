@@ -6,9 +6,9 @@ import (
 )
 
 type AccessKey struct {
-	Write       []string `json:"write"`
-	Read        []string `json:"read"`
 	Token       string   `json:"-"`
+	Read        []string `json:"read"`
+	Write       []string `json:"write"`
 	AllowedUses int      `json:"allowed_uses"`
 	Uses        int      `json:"uses"`
 }
