@@ -69,4 +69,10 @@ func TestConsumeUsage(t *testing.T) {
 	if ak.Uses != 1 {
 		t.Error("AccessKey should track it's usage")
 	}
+
+	err = ak.ConsumeUsage()
+
+	if err == nil {
+		t.Error("Should not be able to consume usage on a depleted AccessKey")
+	}
 }
