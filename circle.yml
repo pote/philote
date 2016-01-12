@@ -3,7 +3,7 @@ machine:
     REDIS_URL: "redis://localhost:6379"
     PORT: "8080"
     PATH: ".:$PATH"
-    GOPATH: "$PWD/.dependencies:$PWD"
+    GOPATH: "/home/ubuntu/philote/.dependencies:/home/ubuntu/philote"
 
 dependencies:
   pre:
