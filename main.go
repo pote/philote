@@ -32,17 +32,17 @@ func ServeWebSocket(ws *websocket.Conn) {
 	segs := strings.Split(ws.Request().URL.Path, "/")
 	if len(segs) < 2  {
 		log.Println("No token in incoming request, dropped")
-		ws.Write([]byte("No token in incoming request, dropped"))
+		websocket.JSON.Send(ws, "No token in incoming request, dropped")
 		return
 	}
 
-	socket, err := LoadSocket(segs[1], ws)
-	if err != nil {
+	accessKey, err := LoadKey(segs[1]); if err != nil {
 		log.Println(err.Error())
-		ws.Write([]byte(err.Error()))
+		websocket.JSON.Send(ws, err.Error())
 		return
 	}
 
+	socket := NewSocket(accessKey, ws)
 	go socket.ListenToRedis()
 	go socket.ListenToSocket()
 

@@ -9,43 +9,28 @@ import (
 )
 
 type Socket struct {
-	Token    string            `json:"-"`
-	ID       string            `json:"-"`
-	Channels map[string]string `json:"channels"`
-	ws       *websocket.Conn    `json:"-"`
-	done     chan bool          `json:"-"`
+	ID         string
+	AccessKey  *AccessKey
+	ws         *websocket.Conn
+	done       chan bool
 }
 
-func LoadSocket(token string, ws *websocket.Conn) (*Socket, error) {
-	r := RedisPool.Get()
-	rawSocket, err := redis.String(r.Do("GET", "philote:token:" + token))
-	r.Close()
-	if err != nil {
-		return &Socket{}, err
-	}
-	
-	if rawSocket  == "" {
-		return &Socket{}, InvalidSocketTokenError{"unknown token"}
-	}
-
+func NewSocket(ak *AccessKey, ws *websocket.Conn) (*Socket) {
 	socket := &Socket{
 		ws:    ws,
 		done: make(chan bool),
 		ID: uuid.New(),
+		AccessKey: ak,
 	}
 
-	err = json.Unmarshal([]byte(rawSocket), &socket); if err != nil {
-		return socket, InvalidSocketTokenError{"invalid token data: " + err.Error()}
-	}
-
-	return socket, nil
+	return socket
 }
 
 func (s *Socket) redisChannels() []interface{} {
-	channels := make([]interface{}, len(s.Channels))
+	channels := make([]interface{}, len(s.AccessKey.Channels))
 
 	i := 0
-	for channel, _ := range s.Channels {
+	for channel, _ := range s.AccessKey.Channels {
 		channels[i] = "philote:channel:" + channel
 		i = i + 1
 	}

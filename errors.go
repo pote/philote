@@ -1,9 +1,9 @@
 package main
 
-type InvalidSocketTokenError struct {
+type InvalidTokenError struct {
 	message string
 }
 
-func (e InvalidSocketTokenError) Error() string {
+func (e InvalidTokenError) Error() string {
 	return e.message
 }

@@ -11,23 +11,24 @@ import (
 )
 
 func TestBasicAuthorization (t *testing.T) {
-	socket := &Socket{
+	accessKey := &AccessKey{
 		Channels: map[string]string{
 			"test-channel": "read,write",
 		},
+		Token: uuid.New(),
 	}
 
-	token := uuid.New()
-	data, _ := json.Marshal(socket)
+	data, _ := json.Marshal(accessKey)
 
 	r := RedisPool.Get()
-	r.Do("SET", "philote:token:" + token, string(data))
+	r.Do("SET", "philote:token:" + accessKey.Token, string(data))
 
 	// Test authorization against the real thing.
 	go main(); time.Sleep(time.Second) // Give it a second, will you?
 
-	wsConnectionURL := fmt.Sprintf("ws://localhost:%v/%v", os.Getenv("PORT"), token)
+	wsConnectionURL := fmt.Sprintf("ws://localhost:%v/%v", os.Getenv("PORT"), accessKey.Token)
 	ws, err := websocket.Dial(wsConnectionURL, "", "http://localhost")
+
 	if err != nil {
 		t.Error(err)
 	}
@@ -35,8 +36,8 @@ func TestBasicAuthorization (t *testing.T) {
 	if !ws.IsClientConn() {
 		t.Error("created connection should be considered a client one")
 	}
-  time.Sleep(5 * time.Second) // Give it a second, will you?
+  time.Sleep(time.Second) // Give it a second, will you?
 
-	r.Do("DEL", "philote" + token)
+	r.Do("DEL", "philote" + accessKey.Token)
 	r.Close()
 }
