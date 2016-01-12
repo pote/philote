@@ -6,9 +6,11 @@ import (
 )
 
 type AccessKey struct {
-	Write []string `json:"write"`
-	Read  []string `json:"read"`
-	Token string   `json:"-"`
+	Write       []string `json:"write"`
+	Read        []string `json:"read"`
+	Token       string   `json:"-"`
+	AllowedUses int      `json:"allowed_uses"`
+	Uses        int      `json:"uses"`
 }
 
 func LoadKey(token string) (*AccessKey, error) {
@@ -60,4 +62,12 @@ func (ak *AccessKey) Delete() error {
 
 	_, err := r.Do("DEL", "philote:token:" + ak.Token)
 	return err
+}
+
+func (ak *AccessKey) UsageIsLimited() bool {
+	return ak.AllowedUses != 0
+}
+
+func (ak *AccessKey) ConsumeUsage() (int, error) {
+	return Lua.ConsumeTokenUsage(ak.Token)
 }

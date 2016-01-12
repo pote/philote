@@ -1,14 +1,14 @@
 PROGNAME ?= philote
-SOURCES = *.go
+SOURCES = *.go src/**/*.go
+LUA_SOURCES = $(patsubst lua/%.lua,src/lua/scripts/%.go,$(wildcard lua/*.lua))
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
-$(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
+$(PROGNAME):  $(SOURCES) $(DEPS) $(LUA_SOURCES) | $(dir $(PROGNAME))
 	go build -o $(PROGNAME)
 
 server: $(PROGNAME)
 	./$(PROGNAME)
-
 test: $(PROGNAME) $(SOURCES)
 	go test
 
@@ -27,4 +27,23 @@ $(dir $(DEPS)):
 $(dir $(PROGNAME)):
 	mkdir -p $@
 
-.PHONY: run test clean dependencies deploy provision ansible/files/philote
+##
+# Lua Scripts -> Go files
+##
+
+src/lua/scripts/%.go: src/lua/scripts lua/%.lua
+	./script/asset_to_go "$*"
+
+##
+# Directories
+##
+
+src/lua/script:
+	mkdir -p $@
+
+
+##
+# You're a PHONY! Just a big, fat PHONY.
+##
+
+.PHONY: run test clean dependencies

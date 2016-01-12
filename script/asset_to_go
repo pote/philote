@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "package lua
+const $(echo "$1" | tr a-z A-Z) = \`$(cat lua/$1.lua)\`" > src/lua/scripts/$1.go
+

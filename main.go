@@ -5,6 +5,7 @@ import (
 	"github.com/pote/redisurl"
 	"golang.org/x/net/websocket"
 	"log"
+	"lua"
 	"net/http"
 	"os"
 	"runtime"
@@ -12,6 +13,7 @@ import (
 )
 
 var RedisPool *redis.Pool = SetupRedis()
+var Lua *lua.Lua = lua.NewClient(RedisPool)
 
 func SetupRedis() *redis.Pool {
 	pool, err := redisurl.NewPool(3, 400, "240s")
@@ -36,13 +38,21 @@ func ServeWebSocket(ws *websocket.Conn) {
 		return
 	}
 
-	accessKey, err := LoadKey(segs[1]); if err != nil {
+	ak, err := LoadKey(segs[1]); if err != nil {
 		log.Println(err.Error())
 		websocket.JSON.Send(ws, err.Error())
 		return
 	}
 
-	socket := NewSocket(accessKey, ws)
+	if ak.UsageIsLimited() {
+		ak.Uses, err = ak.ConsumeUsage(); if err != nil {
+			log.Println(err.Error())
+			websocket.JSON.Send(ws, err.Error())
+			return
+		}
+	}
+
+	socket := NewSocket(ak, ws)
 	go socket.ListenToRedis()
 	go socket.ListenToSocket()
 
