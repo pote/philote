@@ -5,7 +5,7 @@ import (
 )
 
 func TestLoadKey(t *testing.T) {
-	ak, _ := newAccessKey()
+	ak, _ := createTestAccessKey()
 	defer ak.Delete()
 
 	loadedKey, err := LoadKey(ak.Token)

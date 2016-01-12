@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func newAccessKey() (*AccessKey, error) {
+func createTestAccessKey() (*AccessKey, error) {
 	ak := &AccessKey{
 		Read: []string{"test-channel"},
 		Write: []string{},
@@ -21,7 +21,7 @@ func newAccessKey() (*AccessKey, error) {
 }
 
 func TestBasicAuthorization (t *testing.T) {
-	ak, _ := newAccessKey()
+	ak, _ := createTestAccessKey()
 	defer ak.Delete()
 
 	// Test authorization against the real thing.
