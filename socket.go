@@ -95,10 +95,12 @@ func (s *Socket) ListenToSocket() {
 			}
 		}
 
-		s.logMsg("Received message from socket")
+		s.logMsg("Received message from socket in channel " + message.Channel)
 
 		if s.AccessKey.CanWrite(message.Channel) {
 			s.publish(message)
+		} else {
+			s.logMsg("Client does not have write permission for channel " + message.Channel + ", message dropped")
 		}
 	}
 }

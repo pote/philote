@@ -36,7 +36,7 @@ func LoadKey(token string) (*AccessKey, error) {
 
 func (ak *AccessKey) CanWrite(channel string) bool {
 	for _, c := range ak.Write {
-		if c == "channel" {
+		if c == channel {
 			return true
 		}
 	}
