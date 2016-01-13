@@ -2,4 +2,3 @@ github.com/pote/redisurl            5dc4432d8b0b0c3f53d1eab54ee5e4943f4f2be0
 github.com/garyburd/redigo/redis    a470367e65a4a6986739b387f0e0aaa034d55466
 golang.org/x/net/websocket          7dbad50ab5b31073856416cdcfeb2796d682f844
 code.google.com/p/go-uuid/uuid      35bc42037350
-github.com/dgrijalva/jwt-go         61124b62ad244d655f87d944aefaa2ae5a0d2f16
