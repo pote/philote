@@ -115,11 +115,6 @@ func (s *Socket) Wait() {
 	s.logMsg("Disconnected")
 }
 
-// Internal: Actual redis Pub/Sub channel to which we will emit events.
-func (s *Socket) redisChannel() string {
-	return "philote:channel:" + s.ID
-}
-
 func (s *Socket) publish(message *Message) error {
 	conn := RedisPool.Get()
 	defer conn.Close()
