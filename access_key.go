@@ -36,6 +36,9 @@ func LoadKey(token string) (*AccessKey, error) {
 
 func (ak *AccessKey) CanWrite(channel string) bool {
 	for _, c := range ak.Write {
+		if c == "all" {
+			return true
+		}
 		if c == channel {
 			return true
 		}
