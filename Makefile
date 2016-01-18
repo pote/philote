@@ -4,11 +4,11 @@ LUA_SOURCES = $(patsubst lua/%.lua,src/lua/scripts/%.go,$(wildcard lua/*.lua))
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
-$(PROGNAME):  $(SOURCES) $(DEPS) $(LUA_SOURCES) philote-cli | $(dir $(PROGNAME))
+$(PROGNAME):  $(SOURCES) $(DEPS) $(LUA_SOURCES) philote-admin | $(dir $(PROGNAME))
 	go build -o $(PROGNAME)
 
-philote-cli: cli/*.go
-	cd cli && go build -o $@
+philote-admin: admin/*.go
+	cd admin && go build -o $@
 
 server: $(PROGNAME)
 	./$(PROGNAME)

@@ -1,0 +1,6 @@
+vim 1 vim .
+bash 1 source .env.sample && cat .env.sample
+bash 2 source .env.sample && make test
+bash 3 source .env.sample && git status
+servers 1 source .env.sample && make server
+servers 2 source .env.sampe && redis-cli monitor
