@@ -17,7 +17,7 @@ func LoadKey(token string) (*AccessKey, error) {
 	ak := &AccessKey{Token: token}
 	r := RedisPool.Get()
 
-	rawKey, err := redis.String(r.Do("GET", "philote:token:" + token))
+	rawKey, err := redis.String(r.Do("GET", "philote:access_key:" + token))
 	r.Close()
 	if err != nil {
 		return ak, err
@@ -52,7 +52,7 @@ func (ak *AccessKey) Save() error {
 		return err
 	}
 
-	_, err =  r.Do("SET", "philote:token:" + ak.Token, string(data))
+	_, err =  r.Do("SET", "philote:access_key:" + ak.Token, string(data))
 	return err
 }
 
@@ -60,7 +60,7 @@ func (ak *AccessKey) Delete() error {
 	r := RedisPool.Get()
 	defer r.Close()
 
-	_, err := r.Do("DEL", "philote:token:" + ak.Token)
+	_, err := r.Do("DEL", "philote:access_key:" + ak.Token)
 	return err
 }
 

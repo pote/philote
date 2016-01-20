@@ -13,7 +13,7 @@ $ source .env.sample # you might want to copy it to .env if you plan on changing
 $ make
 ```
 
-### Build it, run it.
+### Run it.
 
 ``` bash
 $ make server
@@ -24,6 +24,12 @@ $ make server
 ```bash
 $ make test
 ```
+
+### `philote-admin`
+
+You'll find an executable in `admin/philote-admin`, it's mainly a development help, it can create access keys and publish messages to channels so you can try philote locally with ease.
+
+Run `./admin/philote-admin --help` for more.
 
 ## Clients
 
@@ -49,9 +55,9 @@ Access keys are stored in Redis (under the key `philote:access_key:<identifier-t
   "uses": 0
 }
 ``` 
-You can create your own access keys in your language of choice and store them in Redis with whatever identifier you choose, ranging from secure, randomly-generated tokens to simpler, straightforward ones, keep in mind that these tokens will be exposed to the public so exercise as much caution as your use case requires, for most cases we recommend making each token a single-use one, setting `allowed_uses` to `1` as per the example.
+You can create your own access keys in your language of choice and store them in Redis with whatever identifier you choose, ranging from secure, randomly-generated tokens to simpler, straightforward ones, keep in mind that these tokens will be exposed to the public so exercise as much caution as your use case requires, for most cases we recommend making each token a single-use one, setting `allowed_uses` to `1` as per the example, you can also [specify an expire time](http://redis.io/commands/set) when you store it in Redis. 
 
-We'll create tools that make it easy to create tokens for common languages such as Ruby and Python, or other languages we use regularly like Lua and Go, but really you can use Philote very easily by generating and storing the access keys in your language of choice.
+We'll make tools that make it easy to create tokens for common languages such as Ruby and Python, or other languages we use regularly like Lua and Go in due time, but really you can use Philote very easily by generating and storing the access keys in your language of choice.
 
 # Access Key JSON Schema
 
@@ -92,6 +98,9 @@ There's a JSON schema for the AccessKeys [included in this repo](./meta/access-k
   "required": ["read", "write", "allowed_uses", "uses"]
 }
 ```
+## Caveats
+
+Philote opens a connection to Redis per websocket connection that it maintains open, if open connections are a limitation of your main Redis database I'd recommend having Philote use a separate one.
 
 ## License
 

@@ -31,7 +31,7 @@ func createAccessKey(token string, read, write []string, allowedUses int)  error
 		return err
 	}
 
-	_, err =  r.Do("SET", "philote:token:" + ak.Token, string(data)); if err != nil {
+	_, err =  r.Do("SET", "philote:access_key:" + ak.Token, string(data)); if err != nil {
 		return err
 	}
 
