@@ -2,7 +2,7 @@
 
 Philote is a minimal solution to the websockets server problem, it doesn't even do most of the work: it acts as a bridge between websockets clients such as browser JavaScript engines and a [Redis](http://redis.io/) instance, taking advantage of it's [PubSub](http://redis.io/commands#pubsub) capabilities.
 
-Philote has almost zero-configuration, as it already relies on Redis, websocket clients identify themselves with a token, you can create this tokens in your applications and store them in Redis, which will determine the level of access that connection will have to different pubsub channels - more on this later.
+Philote has almost zero-configuration, as it already relies on Redis, websocket clients identify themselves with a token which you can create in your applications and store in Redis, this will determine the level of access that connection will have to different pubsub channels - more on this later.
 
 ## Bootstrap it
 
@@ -24,12 +24,6 @@ $ make server
 ```bash
 $ make test
 ```
-
-### `philote-admin`
-
-You'll find an executable in `admin/philote-admin`, it's mainly a development help, it can create access keys and publish messages to channels so you can try philote locally with ease.
-
-Run `./admin/philote-admin --help` for more.
 
 ## Clients
 
@@ -98,6 +92,12 @@ There's a JSON schema for the AccessKeys [included in this repo](./meta/access-k
   "required": ["read", "write", "allowed_uses", "uses"]
 }
 ```
+### philote-admin
+
+You'll find an executable in `admin/philote-admin`, it's mainly a development help, it can create access keys and publish messages to channels so you can try philote locally with ease.
+
+Run `./admin/philote-admin --help` for more.
+
 ## Caveats
 
 Philote opens a connection to Redis per websocket connection that it maintains open, if open connections are a limitation of your main Redis database I'd recommend having Philote use a separate one.
