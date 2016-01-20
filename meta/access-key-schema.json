@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Philote's Access Key",
+  "description": "Describes permissions for Philote websocket connection",
+  "type": "object",
+  "properties": {
+    "read": {
+      "description": "PubSub channels for which the connection will receive messages",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "write": {
+      "description": "PubSub channels for which the connection will be allowed to publish messages",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "allowed_uses": {
+      "description": "Amount of times this access key can be used to connect to Philote (0 means unlimited usage)",
+      "type": "integer"
+    },
+    "uses": {
+      "description": "Amount of times this access key was used to connect to Philote",
+      "type": "integer"
+    }
+  },
+  "required": ["read", "write", "allowed_uses", "uses"]
+}
