@@ -100,7 +100,7 @@ Run `./admin/philote-admin --help` for more.
 
 ## Caveats
 
-Philote opens a connection to Redis per websocket connection that it maintains open, if open connections are a limitation of your main Redis database I'd recommend having Philote use a separate one.
+Philote maintains an open Redis connection for each websocket connection that serves, if open connections are a limitation of your main Redis database I'd recommend having Philote use a separate one.
 
 ## License
 
