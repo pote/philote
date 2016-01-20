@@ -9,7 +9,7 @@ Philote has almost zero-configuration, as it already relies on Redis, websocket 
 You'll need [Redis](http://redis.io/) installed and running, and [gpm](https://github.com/pote/gpm) for dependency management.
 
 ``` bash
-$ source .env.sample # you might want to copy it to .env if you plan on changing the settings)
+$ source .env.sample # you might want to copy it to .env and source that instead if you plan on changing the settings.
 $ make
 ```
 
