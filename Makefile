@@ -41,7 +41,7 @@ src/lua/scripts/%.go: src/lua/scripts lua/%.lua
 # Directories
 ##
 
-src/lua/script:
+src/lua/scripts:
 	mkdir -p $@
 
 

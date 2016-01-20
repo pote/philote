@@ -12,7 +12,7 @@
 
 local token = ARGV[1]
 
-local access_key_raw = redis.call("GET", "philote:token:" .. token)
+local access_key_raw = redis.call("GET", "philote:access_key:" .. token)
 if access_key_raw == nil then
 	error("UnknownToken")
 end
@@ -29,5 +29,5 @@ if access_key.uses + 1 > access_key.allowed_uses then
 end
 
 access_key.uses = access_key.uses + 1
-redis.call("SET", "philote:token:" .. token, cjson.encode(access_key))
+redis.call("SET", "philote:access_key:" .. token, cjson.encode(access_key))
 return access_key.uses
