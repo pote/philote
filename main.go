@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -16,7 +17,18 @@ var RedisPool *redis.Pool = SetupRedis()
 var Lua *lua.Lua = lua.NewClient(RedisPool)
 
 func SetupRedis() *redis.Pool {
-	pool, err := redisurl.NewPool(3, 400, "240s")
+	var maxConnections int
+	var err error
+	mcs := os.Getenv("REDIS_MAX_CONNECTIONS")
+	if mcs != "" {
+	 maxConnections, err = strconv.Atoi(mcs); if err != nil {
+		 log.Fatalf(err.Error())
+	 }
+	} else {
+		maxConnections = 400
+	}
+
+	pool, err := redisurl.NewPool(3, maxConnections, "240s")
 	if err != nil {
 		panic(err)
 	}
