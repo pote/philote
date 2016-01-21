@@ -1,13 +1,17 @@
 PROGNAME ?= philote
-SOURCES = main.go access_token.go socket.go
+SOURCES = *.go src/**/*.go
+LUA_SOURCES = $(patsubst lua/%.lua,src/lua/scripts/%.go,$(wildcard lua/*.lua))
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
+GPM ?= gpm
 
-$(PROGNAME): $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
+$(PROGNAME):  $(SOURCES) $(DEPS) $(LUA_SOURCES) philote-admin | $(dir $(PROGNAME))
 	go build -o $(PROGNAME)
 
-run: $(PROGNAME)
-	./$(PROGNAME)
+philote-admin: admin/*.go
+	cd admin && go build -o $@
 
+server: $(PROGNAME)
+	./$(PROGNAME)
 test: $(PROGNAME) $(SOURCES)
 	go test
 
@@ -17,7 +21,7 @@ clean:
 dependencies: $(DEPS)
 
 $(DEPS): Godeps | $(dir $(DEPS))
-	gpm install
+	$(GPM) get
 	touch $@
 
 $(dir $(DEPS)):
@@ -27,16 +31,22 @@ $(dir $(PROGNAME)):
 	mkdir -p $@
 
 ##
-# Provisioning and Deploy
+# Lua Scripts -> Go files
 ##
 
-provision:
-	ansible-playbook -i ansible/inventory ansible/provision.yml
+src/lua/scripts/%.go: src/lua/scripts lua/%.lua
+	./script/asset_to_go "$*"
 
-deploy: ansible/files/philote
-	ansible-playbook -i ansible/inventory ansible/deploy.yml
+##
+# Directories
+##
 
-ansible/files/philote:
-	GOOS=linux GOARCH=amd64 go build -o $@
+src/lua/scripts:
+	mkdir -p $@
 
-.PHONY: run test clean dependencies deploy provision ansible/files/philote
+
+##
+# You're a PHONY! Just a big, fat PHONY.
+##
+
+.PHONY: run test clean dependencies

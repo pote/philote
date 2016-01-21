@@ -3,62 +3,46 @@ package main
 import (
 	"code.google.com/p/go-uuid/uuid"
 	"encoding/json"
-	"errors"
 	"github.com/garyburd/redigo/redis"
 	"golang.org/x/net/websocket"
 	"log"
 )
 
 type Socket struct {
-	ID    string
-	Token *AccessToken
-	done  chan bool
-	ws    *websocket.Conn
+	ID         string
+	AccessKey  *AccessKey
+	ws         *websocket.Conn
+	done       chan bool
 }
 
-type Message struct {
-	UUID    string `json:"id,omitempty"`
-	Channel string `json:"channel,omitempty"`
-	Data    string `json:"data,omitempty"`
-	Event   string `json:"event,omitempty"`
-}
-
-func NewSocket(ws *websocket.Conn) (socket *Socket, err error) {
-	tokenString := ws.Request().FormValue("token")
-
-	if tokenString == "" {
-		err = errors.New("Need a `token` query parameter when connecting")
-		logMsg("[FATAL] Connection didn't send token param", "new")
-		ws.Close()
-		return
-	}
-
-	var token *AccessToken
-	token, err = ParseAccessToken(tokenString)
-
-	if err != nil {
-		logMsg("[FATAL] Can't parse connection token: %s", "new", err)
-		ws.Close()
-		return
-	}
-
-	socket = &Socket{
+func NewSocket(ak *AccessKey, ws *websocket.Conn) (*Socket) {
+	socket := &Socket{
 		ws:    ws,
-		done:  make(chan bool),
-		ID:    uuid.New(),
-		Token: token,
+		done: make(chan bool),
+		ID: uuid.New(),
+		AccessKey: ak,
 	}
 
-	logMsg("Connecting...", socket.ID)
+	return socket
+}
 
-	return
+func (s *Socket) redisChannels() []interface{} {
+	channels := make([]interface{}, len(s.AccessKey.Read))
+
+	i := 0
+	for _, channel := range s.AccessKey.Read {
+		channels[i] = "philote:channel:" + channel
+		i = i + 1
+	}
+
+	return channels
 }
 
 func (s *Socket) ListenToRedis() {
 	rConn := redis.PubSubConn{Conn: RedisPool.Get()}
 	defer rConn.Close()
 
-	rConn.PSubscribe(s.redisPattern())
+	rConn.Subscribe(s.redisChannels()...)
 
 	var (
 		message *Message
@@ -67,26 +51,26 @@ func (s *Socket) ListenToRedis() {
 
 	for {
 		switch event := rConn.Receive().(type) {
-		case redis.PMessage:
+		case redis.Message:
 			err = json.Unmarshal(event.Data, &message)
 
 			if err != nil {
-				logMsg("[SECURITY] Redis message isn't JSON: %s", s.ID, event.Data)
+				s.logMsg("[SECURITY] Redis message isn't JSON: %s", event.Data)
 				continue
 			}
 
 			switch message.Event {
 			case "message":
-				if event.Channel == s.redisChannel() {
+				if message.IssuerID == s.ID {
 					// Message was sent by this connection, ignore.
 					continue
 				}
 
-				logMsg("Received message from redis on '%s'", s.ID, message.Channel)
+				s.logMsg("Received message from redis on '%s'", message.Channel)
 				websocket.JSON.Send(s.ws, &message)
 			case "close":
-				if event.Channel == s.redisChannel() {
-					rConn.PUnsubscribe(s.redisPattern())
+				if message.IssuerID == s.ID {
+					rConn.PUnsubscribe(s.redisChannels()...)
 					break
 				}
 			}
@@ -99,66 +83,53 @@ func (s *Socket) ListenToRedis() {
 
 func (s *Socket) ListenToSocket() {
 	for {
-		var (
-			data    []byte
-			message *Message
-		)
-
-		err := websocket.Message.Receive(s.ws, &data)
-
+		message := &Message{}
+		err := websocket.JSON.Receive(s.ws, &message);
 		if err != nil {
-			s.disconnect()
-			break
+			s.logMsg("Invalid client message data: %s", err.Error() )
+			if err.Error() == "EOF" {
+				s.disconnect()
+				break
+			} else {
+				continue
+			}
 		}
 
-		err = json.Unmarshal(data, &message)
+		s.logMsg("Received message from socket in channel " + message.Channel)
 
-		if err != nil {
-			logMsg("[SECURITY] Invalid client message: %s", s.ID, data)
-			s.disconnect()
-			continue
-		}
-
-		logMsg("Received message from socket on '%s'", s.ID, message.Channel)
-
-		if s.Token.CanAccess(message.Channel) {
-			s.redisPub(data)
+		if s.AccessKey.CanWrite(message.Channel) {
+			s.publish(message)
+		} else {
+			s.logMsg("Client does not have write permission for channel " + message.Channel + ", message dropped")
 		}
 	}
 }
 
 func (s *Socket) disconnect() {
 	message := &Message{Event: "close"}
-	data, _ := json.Marshal(message)
-
-	s.redisPub(data)
-
-	logMsg("Disconnecting from client", s.ID)
+	s.publish(message)
+	s.logMsg("Disconnecting from client")
 	close(s.done)
 }
 
 func (s *Socket) Wait() {
 	<-s.done
-	logMsg("Disconnected", s.ID)
+	s.logMsg("Disconnected")
 }
 
-// Internal: Actual redis Pub/Sub channel to which we will emit events.
-func (s *Socket) redisChannel() string {
-	return s.Token.Hub + ":" + s.ID
-}
-
-// Internal: Pattern to PSUBSCRIBE to in redis events.
-func (s *Socket) redisPattern() string {
-	return s.Token.Hub + ":*"
-}
-
-func (s *Socket) redisPub(data interface{}) {
+func (s *Socket) publish(message *Message) error {
 	conn := RedisPool.Get()
-	conn.Do("PUBLISH", s.redisChannel(), data)
-	conn.Close()
+	defer conn.Close()
+
+	message.IssuerID = s.ID
+	data, err := json.Marshal(message); if err != nil {
+		return err
+	}
+
+	_, err = conn.Do("PUBLISH", "philote:channel:" + message.Channel, string(data))
+	return err
 }
 
-func logMsg(message, connection string, args ...interface{}) {
-	args = append([]interface{}{connection}, args...)
-	log.Printf("[%s] "+message+"\n", args...)
+func (s *Socket) logMsg(message string, args ...interface{}) {
+	log.Printf("[" + s.ID + "] " + message + "\n", args...)
 }

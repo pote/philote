@@ -1,2 +1,4 @@
 .dependencies
 philote
+admin/philote-admin
+src/lua/scripts/*.go

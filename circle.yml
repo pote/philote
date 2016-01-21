@@ -3,10 +3,11 @@ machine:
     REDIS_URL: "redis://localhost:6379"
     PORT: "8080"
     PATH: ".:$PATH"
+    GOPATH: "/home/ubuntu/philote/.dependencies:/home/ubuntu/philote"
 
 dependencies:
   pre:
-    - curl -s https://raw.githubusercontent.com/pote/gpm/v1.3.1/bin/gpm > gpm
+    - curl -s https://raw.githubusercontent.com/pote/gpm/master/bin/gpm > gpm
     - chmod +x ./gpm
   override:
     - make dependencies
