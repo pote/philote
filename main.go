@@ -37,9 +37,19 @@ func SetupRedis() *redis.Pool {
 }
 
 func main() {
+	defer func() {
+		log.Printf("Closing Philote")
+	}()
+
+	port := os.Getenv("PORT"); if port == "" {
+		port = "6380"
+	}
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.Printf("[Main] Initializing Philotic Network on %v core(s)\n", runtime.NumCPU())
-	http.ListenAndServe(":" + os.Getenv("PORT"), websocket.Handler(ServeWebSocket))
+	log.Printf("[Main] Initializing Philotic Network on %v core(s) in port %v\n", runtime.NumCPU(), port)
+	err := http.ListenAndServe(":" + port, websocket.Handler(ServeWebSocket)); if err != nil {
+		log.Println(err)
+	}
 }
 
 func ServeWebSocket(ws *websocket.Conn) {
