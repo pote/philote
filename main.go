@@ -17,8 +17,8 @@ var RedisPool *redis.Pool = SetupRedis()
 var Lua *lua.Lua = lua.NewClient(RedisPool)
 
 func SetupRedis() *redis.Pool {
-	var maxConnections int
 	var err error
+	var maxConnections int
 	mcs := os.Getenv("REDIS_MAX_CONNECTIONS")
 	if mcs != "" {
 	 maxConnections, err = strconv.Atoi(mcs); if err != nil {
@@ -28,7 +28,11 @@ func SetupRedis() *redis.Pool {
 		maxConnections = 400
 	}
 
-	pool, err := redisurl.NewPool(3, maxConnections, "240s")
+	redisURL := os.Getenv("REDIS_URL"); if redisURL == "" {
+		redisURL = "redis://localhost:6379"
+	}
+
+	pool, err := redisurl.NewPoolWithURL(redisURL, 3, maxConnections, "240s")
 	if err != nil {
 		panic(err)
 	}
@@ -37,10 +41,6 @@ func SetupRedis() *redis.Pool {
 }
 
 func main() {
-	defer func() {
-		log.Printf("Closing Philote")
-	}()
-
 	port := os.Getenv("PORT"); if port == "" {
 		port = "6380"
 	}
