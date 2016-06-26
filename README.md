@@ -29,6 +29,8 @@ $ make test
 
 The only official client for Philote at the time of this writing is [philote-js](https://github.com/13floor/philote-js), as the primary use case are browser clients. Philote websocket's facilities are fairly standard though, so I expect clients in other languages should be straightforward to implement.
 
+There is also a [Ruby](https://github.com/pote/philote-rb) client, which currently only implements admin capabilities (creating access keys and publishing via Redis).
+
 ## Authentication
 
 Given a `$PHILOTE_URL` of where your Philote server lives, clients will need to connect to `$PHILOTE_URL/<identifier-token>`, Philote uses the `identifier-token` to look for an access key in Redis (namespace `philote:access_key:<identifier-token>`), if the token is valid whatever permissions specified in the Redis keys will be applied to the connection.
@@ -48,7 +50,7 @@ Access keys are stored in Redis (under the key `philote:access_key:<identifier-t
   "allowed_uses": 1,
   "uses": 0
 }
-``` 
+```
 You can create your own access keys in your language of choice and store them in Redis with whatever identifier you choose, ranging from secure, randomly-generated tokens to simpler, straightforward ones, keep in mind that these tokens will be exposed to the public so exercise as much caution as your use case requires, for most cases we recommend making each token a single-use one, setting `allowed_uses` to `1` as per the example, you can also [specify an expire time](http://redis.io/commands/set) when you store it in Redis. 
 
 We'll make tools that make it easy to create tokens for common languages such as Ruby and Python, or other languages we use regularly like Lua and Go in due time, but really you can use Philote very easily by generating and storing the access keys in your language of choice.
@@ -105,9 +107,3 @@ Philote maintains an open Redis connection for each websocket connection that se
 ## License
 
 Released under MIT License, check LICENSE file for details.
-
-## Sponsorship
-
-This open source tool is proudly sponsored by [13Floor](http://13Floor.org)
-
-![13Floor](./13Floor-circulo-1.png)
