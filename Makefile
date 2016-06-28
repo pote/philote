@@ -16,9 +16,12 @@ test: $(PROGNAME) $(SOURCES)
 	go test
 
 clean:
-	rm $(PROGNAME)
+	rm -rf pkg/
 
 dependencies: $(DEPS)
+
+cross-compile: clean
+	script/cross-compile
 
 $(DEPS): Godeps | $(dir $(DEPS))
 	$(GPM) get
@@ -49,4 +52,4 @@ src/lua/scripts:
 # You're a PHONY! Just a big, fat PHONY.
 ##
 
-.PHONY: run test clean dependencies
+.PHONY: run test clean dependencies cross-compile

@@ -44,9 +44,13 @@ func main() {
 	port := os.Getenv("PORT"); if port == "" {
 		port = "6380"
 	}
-
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.Printf("[Main] Initializing Philotic Network on %v core(s) in port %v\n", runtime.NumCPU(), port)
+
+	log.Printf("[Main] Initializing Philotic Network\n")
+	log.Printf("[Main] Version: %v\n", VERSION)
+	log.Printf("[Main] Port: %v\n", port)
+	log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
+
 	err := http.ListenAndServe(":" + port, websocket.Handler(ServeWebSocket)); if err != nil {
 		log.Println(err)
 	}
