@@ -2,15 +2,15 @@
 
 while read os arch; do
   identifier="philote-$os"-"$arch"
-  build_dir="$PWD"/pkg/"$identifier"
+  build_dir="pkg/$identifier"
   mkdir -p "$build_dir"
   echo "Compiling for $os/$arch"
 
-  GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote          &&
-    cd admin                                                      &&
-    GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote-admin  &&
-    cd ..                                                         &&
-    tar -zcvf pkg/"$identifier".tar.gz "$build_dir"
+  GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote                &&
+    cd admin                                                            &&
+    GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote-admin        &&
+    cd .. && cd pkg && tar -zcvf "$identifier".tar.gz "$identifier"     &&
+    cd ..
 done << EOF
 darwin 386
 darwin amd64
