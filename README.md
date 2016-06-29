@@ -74,7 +74,7 @@ There's a JSON schema for the AccessKeys [included in this repo](./meta/access-k
 
 Philote maintains an open Redis connection for each websocket connection that it serves, so it is recommended to use a dedicated Redis instance to back Philote.
 
-Some stress stesting is needed to figure out the limits of Redis concurrent connection support, this documentation will be updated once that is done.
+This is likely going to be refactored into something smarter in the near future, but before doing that some stress stesting is needed to figure out the limits of Redis concurrent connection support as well as observing real world usage to find out how much of a problem it is.
 
 ## Local development
 
