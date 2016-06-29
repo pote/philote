@@ -2,28 +2,40 @@
 
 Philote is a minimal solution to the websockets server problem, it doesn't even do most of the work: it acts as a bridge between websockets clients such as browser JavaScript engines and a [Redis](http://redis.io/) instance, taking advantage of it's [PubSub](http://redis.io/commands#pubsub) capabilities.
 
-Philote has almost zero-configuration, as it already relies on Redis, websocket clients identify themselves with a token which you can create in your applications and store in Redis, this will determine the level of access that connection will have to different pubsub channels - more on this later.
+## How it works
 
-## Bootstrap it
+Philote has two features: it serves websockets connections and it provides an authentication mechanism for clients them.
 
-You'll need [Redis](http://redis.io/) installed and running, and [gpm](https://github.com/pote/gpm) for dependency management.
+Authentication happens through [Access Keys](#access-keys), these keys are stored in Redis and identified by a token which the client will need in order to open a connection to Philote.
 
-``` bash
-$ source .env.sample # you might want to copy it to .env and source that instead if you plan on changing the settings.
-$ make
-```
+Philote pub/sub capabilities are backed by redis's own, what this means is you can interact with the philote channels simply by publishing or listening to pub/sub messages in redis, without a need for special clients and without the overhead of opening websockets connections, publishing is as fast as sending out a Redis [PUBLISH](http://redis.io/commands/publish) command.
 
-### Run it.
+### Installing it
 
-``` bash
-$ make server
-```
+A homebrew package is in the works, for now you can check out the [latest release](https://github.com/pote/philote/releases) and download the appropriate binary, or [install from source](#install-from-source)
 
-### Run the test suite
+### Running the server
+
+There are three configuration options for Philote, all of which have sensible defaults and can be set by setting their respective environment variable.
+
+| Environment Variable    | Default                   | Description                                    |
+|:-----------------------:|:-------------------------:|:-----------------------------------------------|
+| `PORT`                  | `6380`                    | Port in which to serve websocket connections   | 
+| `REDIS_URL`             | `redis://localhost:6379`  | Philote-backing Redis instance                 | 
+| `REDIS_MAX_CONNECTIONS` | `400`                     | Maximum number of concurrent Redis connections |
+
+If the defaults work for you, simply running `philote` will start the server with the default values, or you can just manipulate the environment and run with whatever settings you need.
 
 ```bash
-$ make test
+$ PORT=942414 REDIS_URL=redis://123.412.512.3:12352/2 philote
 ```
+
+### philote-admin
+
+You'll find an executable called `philote-admin`, it's mainly a development help, it can create access keys and publish messages to channels so you can try philote locally with ease.
+
+Run `philote-admin --help` for more.
+
 
 ## Clients
 
@@ -51,58 +63,41 @@ Access keys are stored in Redis (under the key `philote:access_key:<identifier-t
   "uses": 0
 }
 ```
+
 You can create your own access keys in your language of choice and store them in Redis with whatever identifier you choose, ranging from secure, randomly-generated tokens to simpler, straightforward ones, keep in mind that these tokens will be exposed to the public so exercise as much caution as your use case requires, for most cases we recommend making each token a single-use one, setting `allowed_uses` to `1` as per the example, you can also [specify an expire time](http://redis.io/commands/set) when you store it in Redis. 
 
-We'll make tools that make it easy to create tokens for common languages such as Ruby and Python, or other languages we use regularly like Lua and Go in due time, but really you can use Philote very easily by generating and storing the access keys in your language of choice.
-
-# Access Key JSON Schema
+If you're using Ruby, we've made [a helper library](https://github.com/pote/philote-rb) that should make creating access keys and publishing messages simpler for you. We'll make tools that make it easy to create tokens for common languages such as Python, Lua, and Go in due time, but really you can use Philote very easily by generating and storing the access keys in your language of choice and storing it directly in Redis.
 
 There's a JSON schema for the AccessKeys [included in this repo](./meta/access-key-schema.json).
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Philote's Access Key",
-  "description": "Describes permissions for Philote websocket connection",
-  "type": "object",
-  "properties": {
-    "read": {
-      "description": "PubSub channels for which the connection will receive messages",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
-    },
-    "write": {
-      "description": "PubSub channels for which the connection will be allowed to publish messages",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
-    },
-    "allowed_uses": {
-      "description": "Amount of times this access key can be used to connect to Philote (0 means unlimited usage)",
-      "type": "integer"
-    },
-    "uses": {
-      "description": "Amount of times this access key was used to connect to Philote",
-      "type": "integer"
-    }
-  },
-  "required": ["read", "write", "allowed_uses", "uses"]
-}
+## Caveat
+
+Philote maintains an open Redis connection for each websocket connection that it serves, so it is recommended to use a dedicated Redis instance to back Philote.
+
+Some stress stesting is needed to figure out the limits of Redis concurrent connection support, this documentation will be updated once that is done.
+
+## Local development
+
+### Bootstrap it
+
+You'll need [Redis](http://redis.io/) installed and running, and [gpm](https://github.com/pote/gpm) for dependency management.
+
+``` bash
+$ source .env.sample # you might want to copy it to .env and source that instead if you plan on changing the settings.
+$ make install
 ```
-### philote-admin
 
-You'll find an executable in `admin/philote-admin`, it's mainly a development help, it can create access keys and publish messages to channels so you can try philote locally with ease.
+### Run the test suite
 
-Run `./admin/philote-admin --help` for more.
+```bash
+$ make test
+```
 
-## Caveats
+### Install from source
 
-Philote maintains an open Redis connection for each websocket connection that serves, if open connections are a limitation of your main Redis database I'd recommend having Philote use a separate one.
+```bash
+$ make install
+```
 
 ## License
 
