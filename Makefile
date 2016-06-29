@@ -33,6 +33,10 @@ install: philote bin/philote-admin
 	install -m 0755 bin/philote /usr/local/bin
 	install -m 0755 bin/philote-admin /usr/local/bin
 
+uninstall:
+	rm -f $(prefix)/bin/philote
+	rm -f $(prefix)/bin/philote-admin
+
 $(DEPS): Godeps | $(dir $(DEPS))
 	$(GPM) get
 	touch $@
