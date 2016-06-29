@@ -82,9 +82,17 @@ This is likely going to be refactored into something smarter in the near future,
 
 You'll need [Redis](http://redis.io/) installed and running, and [gpm](https://github.com/pote/gpm) for dependency management.
 
+### Set it up
+
 ``` bash
 $ source .env.sample # you might want to copy it to .env and source that instead if you plan on changing the settings.
-$ make install
+$ make 
+```
+
+### Run a Philote server
+
+```bash
+$ make server
 ```
 
 ### Run the test suite
