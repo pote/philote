@@ -4,14 +4,16 @@ LUA_SOURCES = $(patsubst lua/%.lua,src/lua/scripts/%.go,$(wildcard lua/*.lua))
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
-$(PROGNAME):  $(SOURCES) $(DEPS) $(LUA_SOURCES) philote-admin | $(dir $(PROGNAME))
-	go build -o $(PROGNAME)
+-include config.mk
 
-philote-admin: admin/*.go
-	cd admin && go build -o $@
+$(PROGNAME):  bin $(SOURCES) $(DEPS) $(LUA_SOURCES) bin/philote-admin | $(dir $(PROGNAME))
+	go build -o bin/$(PROGNAME)
+
+bin/philote-admin: admin/*.go
+	cd admin && go build -o ../$@
 
 server: $(PROGNAME)
-	./$(PROGNAME)
+	./bin/$(PROGNAME)
 test: $(PROGNAME) $(SOURCES)
 	go test
 
@@ -23,15 +25,17 @@ dependencies: $(DEPS)
 cross-compile: clean
 	script/cross-compile
 
+config.mk:
+	@./configure
+
+install: philote bin/philote-admin
+	install -d $(prefix)/bin
+	install -m 0755 bin/philote /usr/local/bin
+	install -m 0755 bin/philote-admin /usr/local/bin
+
 $(DEPS): Godeps | $(dir $(DEPS))
 	$(GPM) get
 	touch $@
-
-$(dir $(DEPS)):
-	mkdir -p $@
-
-$(dir $(PROGNAME)):
-	mkdir -p $@
 
 ##
 # Lua Scripts -> Go files
@@ -44,9 +48,14 @@ src/lua/scripts/%.go: src/lua/scripts lua/%.lua
 # Directories
 ##
 
-src/lua/scripts:
+src/lua/scripts bin:
 	mkdir -p $@
 
+$(dir $(DEPS)):
+	mkdir -p $@
+
+$(dir $(PROGNAME)):
+	mkdir -p $@
 
 ##
 # You're a PHONY! Just a big, fat PHONY.

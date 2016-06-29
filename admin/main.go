@@ -10,9 +10,9 @@ import(
 
 
 func printUsageAndExit() {
-	fmt.Println(`Usage: philote-cli [create-key|publish] <flags>
+	fmt.Println(`Usage: philote-admin [create-key|publish] <flags>
 
-Try philote-cli <command> --help for details.`)
+Try philote-admin <command> --help for details.`)
 	os.Exit(1)
 }
 
