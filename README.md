@@ -99,6 +99,10 @@ $ make test
 $ make install
 ```
 
+## Further reading
+
+There is an [example chat application](), powered by Philote, [philote-rb](https://github.com/pote/philote-rb) and [philote-js](https://github.com/13Floor/philote-js) which you can look at for a peek into how you could implement Philote into your app.
+
 ## License
 
 Released under MIT License, check LICENSE file for details.
