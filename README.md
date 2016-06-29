@@ -27,7 +27,7 @@ There are three configuration options for Philote, all of which have sensible de
 If the defaults work for you, simply running `philote` will start the server with the default values, or you can just manipulate the environment and run with whatever settings you need.
 
 ```bash
-$ PORT=942414 REDIS_URL=redis://123.412.512.3:12352/2 philote
+$ PORT=9424 REDIS_URL=redis://123.412.512.3:12352/2 philote
 ```
 
 ### philote-admin
