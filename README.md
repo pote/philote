@@ -2,11 +2,13 @@
 
 Philote is a minimal solution to the websockets server problem, it doesn't even do most of the work: it acts as a bridge between websockets clients such as browser JavaScript engines and a [Redis](http://redis.io/) instance, taking advantage of it's [PubSub](http://redis.io/commands#pubsub) capabilities.
 
-## How it works
+## What it does
 
-Philote has two features: it serves websockets connections and it provides an authentication mechanism for clients them.
+Philote has two features: it serves websockets connections and it provides an authentication mechanism for clients opening them.
 
 Authentication happens through [Access Keys](#access-keys), these keys are stored in Redis and identified by a token which the client will need in order to open a connection to Philote.
+
+Once open, a websocket connection has read and/or write access to a set of channels, they will receive messages pushed by other clients into those channels and have the ability to publish their own messages.
 
 Philote pub/sub capabilities are backed by redis's own, what this means is you can interact with the philote channels simply by publishing or listening to pub/sub messages in redis, without a need for special clients and without the overhead of opening websockets connections, publishing is as fast as sending out a Redis [PUBLISH](http://redis.io/commands/publish) command.
 
