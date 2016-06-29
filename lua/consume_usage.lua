@@ -25,7 +25,7 @@ end
 
 if access_key.uses + 1 > access_key.allowed_uses then
 	error("DepletedAccessKey")
-	redis.call("DEL", "philote:token:" .. token)
+	redis.call("DEL", "philote:access_key:" .. token)
 end
 
 access_key.uses = access_key.uses + 1
