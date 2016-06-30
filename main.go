@@ -53,9 +53,19 @@ func main() {
 	log.Printf("[Main] Port: %v\n", port)
 	log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
 
-	err := http.ListenAndServe(":" + port, websocket.Handler(ServeWebSocket)); if err != nil {
-		log.Println(err)
-	}
+	done := make(chan bool)
+	RunServer(done, port)
+}
+
+func RunServer(done chan bool, port string) {
+	go func() {
+		err := http.ListenAndServe(":" + port, websocket.Handler(ServeWebSocket)); if err != nil {
+			log.Println(err)
+		}
+	}()
+
+	<- done
+	log.Println("[Main] Stop signal detected, shutting down.")
 }
 
 func ServeWebSocket(ws *websocket.Conn) {

@@ -2,7 +2,21 @@ package main
 
 import (
 	"testing"
+
+	"code.google.com/p/go-uuid/uuid"
 )
+
+func createTestAccessKey() (*AccessKey, error) {
+	ak := &AccessKey{
+		Read: []string{"test-channel"},
+		Write: []string{},
+		Token: uuid.New(),
+	}
+
+	err := ak.Save()
+	return ak, err
+}
+
 
 func TestLoadKey(t *testing.T) {
 	ak, _ := createTestAccessKey()
