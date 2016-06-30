@@ -1,16 +1,18 @@
 package main
 
 import (
-	"github.com/garyburd/redigo/redis"
-	"github.com/pote/redisurl"
-	"golang.org/x/net/websocket"
 	"log"
-	"lua"
 	"net/http"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/garyburd/redigo/redis"
+	"github.com/pote/redisurl"
+	"golang.org/x/net/websocket"
+
+	"lua"
 )
 
 var RedisPool *redis.Pool = SetupRedis()

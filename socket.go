@@ -1,11 +1,12 @@
 package main
 
 import (
-	"code.google.com/p/go-uuid/uuid"
 	"encoding/json"
+	"log"
+
+	"code.google.com/p/go-uuid/uuid"
 	"github.com/garyburd/redigo/redis"
 	"golang.org/x/net/websocket"
-	"log"
 )
 
 type Socket struct {

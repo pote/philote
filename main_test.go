@@ -1,12 +1,13 @@
 package main
 
 import (
-	"code.google.com/p/go-uuid/uuid"
 	"fmt"
-	"golang.org/x/net/websocket"
 	"os"
 	"testing"
 	"time"
+
+	"golang.org/x/net/websocket"
+	"code.google.com/p/go-uuid/uuid"
 )
 
 func createTestAccessKey() (*AccessKey, error) {
