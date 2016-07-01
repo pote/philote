@@ -78,6 +78,7 @@ func (s *Socket) ListenToRedis() {
 		case error:
 			rConn.Close()
 			rConn = redis.PubSubConn{Conn: RedisPool.Get()}
+			rConn.Subscribe(s.redisChannels()...)
 		}
 	}
 }
