@@ -3,12 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/ianschenck/envflag"
 	"github.com/pote/redisurl"
 	"golang.org/x/net/websocket"
 
@@ -19,22 +18,12 @@ var RedisPool *redis.Pool = SetupRedis()
 var Lua *lua.Lua = lua.NewClient(RedisPool)
 
 func SetupRedis() *redis.Pool {
-	var err error
-	var maxConnections int
-	mcs := os.Getenv("REDIS_MAX_CONNECTIONS")
-	if mcs != "" {
-	 maxConnections, err = strconv.Atoi(mcs); if err != nil {
-		 log.Fatalf(err.Error())
-	 }
-	} else {
-		maxConnections = 400
-	}
+	maxConnections := envflag.Int("REDIS_MAX_CONNECTIONS", 400, "Maximum ammount of concurrent Redis connections")
+	redisURL := envflag.String("REDIS_URL", "redis://localhost:6379", "Redis database url")
 
-	redisURL := os.Getenv("REDIS_URL"); if redisURL == "" {
-		redisURL = "redis://localhost:6379"
-	}
+	envflag.Parse()
 
-	pool, err := redisurl.NewPoolWithURL(redisURL, 3, maxConnections, "240s")
+	pool, err := redisurl.NewPoolWithURL(*redisURL, 3, *maxConnections, "240s")
 	if err != nil {
 		panic(err)
 	}
@@ -43,18 +32,18 @@ func SetupRedis() *redis.Pool {
 }
 
 func main() {
-	port := os.Getenv("PORT"); if port == "" {
-		port = "6380"
-	}
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
+	envflag.Parse()
 
 	log.Printf("[Main] Initializing Philotic Network\n")
 	log.Printf("[Main] Version: %v\n", VERSION)
-	log.Printf("[Main] Port: %v\n", port)
+	log.Printf("[Main] Port: %v\n", *port)
 	log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
 
 	done := make(chan bool)
-	RunServer(done, port)
+	RunServer(done, *port)
 }
 
 func RunServer(done chan bool, port string) {
