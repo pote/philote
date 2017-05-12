@@ -1,12 +1,13 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"runtime"
+  "log"
+  "net/http"
+  "runtime"
+  "strings"
 
-	"github.com/ianschenck/envflag"
-	"github.com/gorilla/websocket"
+  "github.com/ianschenck/envflag"
+  "github.com/gorilla/websocket"
 )
 
 var Hive *hive = NewHive()
@@ -28,7 +29,14 @@ func main() {
   log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
 
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    accessKey, err := NewAccessKey(r.Header.Get("Authorization")); if err != nil {
+    results := strings.Split(r.Header.Get("Authorization"), "Bearer "); if len(results) < 2 {
+      err :=  errors.New("No access token found")
+      log.Println(err)
+      w.Write([]byte(err.Error()))
+      return
+    }
+
+    accessKey, err := NewAccessKey(results[1]); if err != nil {
       log.Println(err)
       w.Write([]byte(err.Error()))
       return
