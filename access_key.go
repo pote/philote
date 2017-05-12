@@ -1,36 +1,44 @@
 package main
 
 import (
-	"encoding/json"
-
-	"github.com/garyburd/redigo/redis"
+  "errors"
+  "fmt"
+  "github.com/dgrijalva/jwt-go"
 )
 
 type AccessKey struct {
-	Token       string   `json:"-"`
-	Read        []string `json:"read"`
-	Write       []string `json:"write"`
-	AllowedUses int      `json:"allowed_uses"`
-	Uses        int      `json:"uses"`
+  Read        []string `json:"read"`
+  Write       []string `json:"write"`
+
+  jwt.StandardClaims
 }
 
-func LoadKey(token string) (*AccessKey, error) {
-	ak := &AccessKey{Token: token}
-	r := RedisPool.Get()
+func NewAccessKey(auth string) (*AccessKey, error) {
+  ak := AccessKey{}
+  _, err := jwt.ParseWithClaims(auth, &ak, func(t *jwt.Token) (interface{}, error) {
+    return []byte{}, nil
+  })
 
-	rawKey, err := redis.String(r.Do("GET", "philote:access_key:" + token))
-	r.Close()
-	if err != nil {
-		return ak, err
-	}
-	if rawKey  == "" {
-		return ak, InvalidTokenError{"unknown token"}
-	}
+  return &ak, err
+}
 
+func LoadKey(rawToken string) (*AccessKey, error) {
+  ak := &AccessKey{}
 
-	err = json.Unmarshal([]byte(rawKey), &ak); if err != nil {
-		return ak, InvalidTokenError{"invalid token data: " + err.Error()}
-	}
+  keyFunc := func(token *jwt.Token) (interface{}, error) {
+    return []byte("AllYourBase"), nil
+  }
+
+  token, err := jwt.ParseWithClaims(rawToken, &AccessKey{}, keyFunc); if err != nil {
+    return ak, err
+  }
+
+  if claims, ok := token.Claims.(*AccessKey); ok && token.Valid {
+    fmt.Printf("%v %v", claims.Read, claims.Write)
+  } else {
+    fmt.Println(err)
+    return ak, errors.New("invalid token")
+  }
 
 	return ak, nil
 }
@@ -43,35 +51,4 @@ func (ak *AccessKey) CanWrite(channel string) bool {
 	}
 	
 	return false
-}
-
-func (ak *AccessKey) Save() error {
-	r := RedisPool.Get()
-	defer r.Close()
-
-	data, err := json.Marshal(ak); if err != nil {
-		return err
-	}
-
-	_, err =  r.Do("SET", "philote:access_key:" + ak.Token, string(data))
-	return err
-}
-
-func (ak *AccessKey) Delete() error {
-	r := RedisPool.Get()
-	defer r.Close()
-
-	_, err := r.Do("DEL", "philote:access_key:" + ak.Token)
-	return err
-}
-
-func (ak *AccessKey) UsageIsLimited() bool {
-	return ak.AllowedUses != 0
-}
-
-func (ak *AccessKey) ConsumeUsage() (error) {
-	uses, err :=  Lua.ConsumeTokenUsage(ak.Token)
-	ak.Uses = uses
-
-	return err
 }

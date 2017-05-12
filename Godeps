@@ -1,5 +1,4 @@
-github.com/pote/redisurl            5dc4432d8b0b0c3f53d1eab54ee5e4943f4f2be0
-github.com/garyburd/redigo/redis    a470367e65a4a6986739b387f0e0aaa034d55466
-golang.org/x/net/websocket          7dbad50ab5b31073856416cdcfeb2796d682f844
-code.google.com/p/go-uuid/uuid      35bc42037350
+github.com/satori/go.uuid           v1.1.0
+github.com/dgrijalva/jwt-go         v3.0.0
 github.com/ianschenck/envflag       9111d830d133f952887a936367fb0211c3134f0d
+github.com/gorilla/websocket        0868951cdb8e69bc42df4598bdc6164ff2f1a072

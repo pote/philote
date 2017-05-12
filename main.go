@@ -4,84 +4,52 @@ import (
 	"log"
 	"net/http"
 	"runtime"
-	"strings"
 
-	"github.com/garyburd/redigo/redis"
 	"github.com/ianschenck/envflag"
-	"github.com/pote/redisurl"
-	"golang.org/x/net/websocket"
-
-	"lua"
+	"github.com/gorilla/websocket"
 )
 
-var RedisPool *redis.Pool = SetupRedis()
-var Lua *lua.Lua = lua.NewClient(RedisPool)
+var Hive *hive = NewHive()
 
-func SetupRedis() *redis.Pool {
-	maxConnections := envflag.Int("REDIS_MAX_CONNECTIONS", 400, "Maximum ammount of concurrent Redis connections")
-	redisURL := envflag.String("REDIS_URL", "redis://localhost:6379", "Redis database url")
-
-	envflag.Parse()
-
-	pool, err := redisurl.NewPoolWithURL(*redisURL, 3, *maxConnections, "240s")
-	if err != nil {
-		panic(err)
-	}
-
-	return pool
+var Upgrader = websocket.Upgrader{
+  ReadBufferSize:  1024,
+  WriteBufferSize: 1024,
 }
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+  //runtime.GOMAXPROCS(runtime.NumCPU())
 
-	port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
-	envflag.Parse()
+  //jwtToken := envflag.String("JWT_SECRET", "", "Secret JWT token that validates access keys.")
+  port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
 
-	log.Printf("[Main] Initializing Philotic Network\n")
-	log.Printf("[Main] Version: %v\n", VERSION)
-	log.Printf("[Main] Port: %v\n", *port)
-	log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
+  envflag.Parse()
 
-	done := make(chan bool)
-	RunServer(done, *port)
-}
+  log.Printf("[Main] Initializing Philotic Network\n")
+  log.Printf("[Main] Version: %v\n", VERSION)
+  log.Printf("[Main] Port: %v\n", *port)
+  log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
 
-func RunServer(done chan bool, port string) {
-	go func() {
-		err := http.ListenAndServe(":" + port, websocket.Handler(ServeWebSocket)); if err != nil {
-			log.Println(err)
-		}
-	}()
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    accessKey, err := NewAccessKey(r.Header.Get("Authorization")); if err != nil {
+      log.Println(err)
+      w.Write([]byte(err.Error()))
+      return
+    }
 
-	<- done
-	log.Println("[Main] Stop signal detected, shutting down.")
-}
+    connection, err := Upgrader.Upgrade(w, r, nil); if err != nil {
+      log.Println(err)
+      w.Write([]byte(err.Error()))
+      return
+    }
 
-func ServeWebSocket(ws *websocket.Conn) {
-	segs := strings.Split(ws.Request().URL.Path, "/")
-	if len(segs) < 2  {
-		log.Println("No token in incoming request, dropped")
-		websocket.JSON.Send(ws, "No token in incoming request, dropped")
-		return
-	}
+    philote := NewPhilote(accessKey, connection)
+    Hive.NewPhilotes <- philote
+    go philote.ListenToSocket()
+    philote.Wait()
+  })
 
-	ak, err := LoadKey(segs[1]); if err != nil {
-		log.Println(err.Error())
-		websocket.JSON.Send(ws, err.Error())
-		return
-	}
-
-	if ak.UsageIsLimited() {
-	err = ak.ConsumeUsage(); if err != nil {
-			log.Println(err.Error())
-			websocket.JSON.Send(ws, err.Error())
-			return
-		}
-	}
-
-	socket := NewSocket(ak, ws)
-	go socket.ListenToRedis()
-	go socket.ListenToSocket()
-
-	socket.Wait()
+  err := http.ListenAndServe(":" + *port, nil)
+  if err != nil {
+    log.Fatal("ListenAndServe: ", err)
+  }
 }
