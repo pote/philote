@@ -17,8 +17,6 @@ var Upgrader = websocket.Upgrader{
 }
 
 func main() {
-  //runtime.GOMAXPROCS(runtime.NumCPU())
-
   //jwtToken := envflag.String("JWT_SECRET", "", "Secret JWT token that validates access keys.")
   port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
 
