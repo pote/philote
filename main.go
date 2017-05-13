@@ -50,8 +50,7 @@ func main() {
     philote.Wait()
   })
 
-  err := http.ListenAndServe(":" + Config.port, nil)
-  if err != nil {
+  err := http.ListenAndServe(":" + Config.port, nil); if err != nil {
     log.Fatal("ListenAndServe: ", err)
   }
 }
