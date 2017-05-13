@@ -21,11 +21,11 @@ func TestNewAccessKey(t *testing.T) {
     t.Fatal(err)
   }
 
-  if ak.Read[0] != "test-channel" {
+  if len(ak.Read) < 1 || ak.Read[0] != "test-channel" {
     t.Error("Access Key does not have proper read permissions")
   }
 
-  if ak.Write[0] != "test-channel" {
+  if len(ak.Write) < 1 || ak.Write[0] != "test-channel" {
     t.Error("Access Key does not have proper write permissions")
   }
 }
