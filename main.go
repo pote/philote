@@ -1,6 +1,7 @@
 package main
 
 import (
+  "errors"
   "log"
   "net/http"
   "runtime"
@@ -18,7 +19,7 @@ var Upgrader = websocket.Upgrader{
 }
 
 func main() {
-  //jwtToken := envflag.String("JWT_SECRET", "", "Secret JWT token that validates access keys.")
+  jwtSecret := envflag.String("JWT_SECRET", "", "JWT secret used to validate access keys.")
   port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
 
   envflag.Parse()
@@ -28,6 +29,8 @@ func main() {
   log.Printf("[Main] Port: %v\n", *port)
   log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
 
+  Hive.jwtSecret = []byte(*jwtSecret)
+
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
     results := strings.Split(r.Header.Get("Authorization"), "Bearer "); if len(results) < 2 {
       err :=  errors.New("No access token found")
@@ -36,7 +39,7 @@ func main() {
       return
     }
 
-    accessKey, err := NewAccessKey(results[1]); if err != nil {
+    accessKey, err := Hive.NewAccessKey(results[1]); if err != nil {
       log.Println(err)
       w.Write([]byte(err.Error()))
       return
