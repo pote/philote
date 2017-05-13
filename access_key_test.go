@@ -13,11 +13,11 @@ func TestNewAccessKey(t *testing.T) {
       "write": []string{"test-channel"},
   })
 
-  tokenString, err := token.SignedString(Hive.jwtSecret); if err != nil {
+  tokenString, err := token.SignedString(Config.jwtSecret); if err != nil {
     t.Fatal(err)
   }
 
-  ak, err := Hive.NewAccessKey(tokenString); if err != nil {
+  ak, err := NewAccessKey(tokenString); if err != nil {
     t.Fatal(err)
   }
 
