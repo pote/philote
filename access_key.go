@@ -44,3 +44,13 @@ func (ak *AccessKey) CanWrite(channel string) bool {
 
   return false
 }
+
+func (ak *AccessKey) CanRead(channel string) bool {
+  for _, c := range ak.Read {
+    if c == channel {
+      return true
+    }
+  }
+
+  return false
+}
