@@ -5,11 +5,8 @@ GPM ?= gpm
 
 -include config.mk
 
-$(PROGNAME):  bin $(SOURCES) $(DEPS) $(LUA_SOURCES) bin/philote-admin | $(dir $(PROGNAME))
+$(PROGNAME):  bin $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o bin/$(PROGNAME)
-
-bin/philote-admin: admin/*.go
-	cd admin && go build -o ../$@
 
 server: $(PROGNAME)
 	./bin/$(PROGNAME)
