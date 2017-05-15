@@ -15,7 +15,7 @@ bin/philote-admin: admin/*.go
 server: $(PROGNAME)
 	./bin/$(PROGNAME)
 test: $(PROGNAME) $(SOURCES)
-	go test
+	LOG=error go test
 
 clean:
 	rm -rf pkg/
