@@ -38,6 +38,9 @@ func (p *Philote) Listen() {
       break
     }
 
+    // Ensure no tampering with message data
+    message.IssuerID = p.ID
+
     log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Debug("Received message from socet")
 
     if p.AccessKey.CanWrite(message.Channel) {
@@ -45,13 +48,15 @@ func (p *Philote) Listen() {
     } else {
       log.WithFields(log.Fields{
         "philote": p.ID,
-        "channel": message.Channel}).Info("Message dropped due to insufficient write permissions")
+        "channel": message.Channel,
+        "event": message.Event,
+        "data": message.Data,
+      }).Info("Message dropped due to insufficient write permissions")
     }
   }
 }
 
 func (p *Philote) disconnect() {
-  p.publish(&Message{Event: "close"})
   log.WithFields(log.Fields{"philote": p.ID}).Debug("Closing Philote")
   p.ws.Close()
 }
