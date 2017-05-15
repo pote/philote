@@ -33,12 +33,9 @@ func (p *Philote) Listen() {
         "philote": p.ID,
         "channel": message.Channel,
         "error": err.Error()}).Warn("Invalid client message data")
-      if err.Error() == "EOF" {
-        p.Hive.Disconnect <- p
-        break
-      } else {
-        continue
-      }
+
+      p.Hive.Disconnect <- p
+      break
     }
 
     log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Debug("Received message from socet")
