@@ -12,5 +12,6 @@
     "JWT_SECRET": {
       "description": "The secret auth salt shared between Philote and your clients",
       "value": ""
-    },
+    }
+  }
 }
