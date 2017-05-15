@@ -18,10 +18,10 @@ var Upgrader = websocket.Upgrader{
 }
 
 func main() {
-  log.Printf("[Main] Initializing Philotic Network\n")
-  log.Printf("[Main] Version: %v\n", VERSION)
-  log.Printf("[Main] Port: %v\n", Config.port)
-  log.Printf("[Main] Cores: %v\n", runtime.NumCPU())
+  log.WithFields(log.Fields{
+    "version": VERSION,
+    "port": Config.port,
+    "cores": runtime.NumCPU()}).Info("Initializing Philotic Network")
 
   http.HandleFunc("/", ServeNewConnection)
 

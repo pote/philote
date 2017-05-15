@@ -31,7 +31,7 @@ func (p *Philote) Listen() {
       log.WithFields(log.Fields{
         "philote": p.ID,
         "channel": message.Channel,
-        "error": err.Error()}).Info("Invalid client message data")
+        "error": err.Error()}).Warn("Invalid client message data")
       if err.Error() == "EOF" {
         p.Hive.Disconnect <- p
         break
@@ -40,19 +40,21 @@ func (p *Philote) Listen() {
       }
     }
 
-    log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Info("Received message from socet")
+    log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Debug("Received message from socet")
 
     if p.AccessKey.CanWrite(message.Channel) {
       go p.publish(message)
     } else {
-      log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Warn("Message dropped")
+      log.WithFields(log.Fields{
+        "philote": p.ID,
+        "channel": message.Channel}).Info("Message dropped due to insufficient write permissions")
     }
   }
 }
 
 func (p *Philote) disconnect() {
   p.publish(&Message{Event: "close"})
-  log.WithFields(log.Fields{"philote": p.ID}).Info("Closing Philote")
+  log.WithFields(log.Fields{"philote": p.ID}).Debug("Closing Philote")
   p.ws.Close()
 }
 
