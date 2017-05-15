@@ -1,4 +1,5 @@
 github.com/satori/go.uuid           v1.1.0
 github.com/dgrijalva/jwt-go         v3.0.0
+github.com/sirupsen/logrus          v0.11.5
 github.com/ianschenck/envflag       9111d830d133f952887a936367fb0211c3134f0d
 github.com/gorilla/websocket        0868951cdb8e69bc42df4598bdc6164ff2f1a072

@@ -1,12 +1,11 @@
 package main
 
 import (
-  "log"
   "net/http"
-  "os"
   "runtime"
   "strings"
 
+  log "github.com/sirupsen/logrus"
   "github.com/gorilla/websocket"
 )
 
@@ -34,13 +33,13 @@ func main() {
 func ServeNewConnection(w http.ResponseWriter, r *http.Request) {
   auth := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
   accessKey, err := NewAccessKey(auth); if err != nil {
-    if os.Getenv("DEBUG") == "true" { log.Println("Access Key error: " + err.Error()) }
+    log.WithFields(log.Fields{"error": err.Error()}).Warn("Can't create Access key")
     w.Write([]byte(err.Error()))
     return
   }
 
   connection, err := Upgrader.Upgrade(w, r, nil); if err != nil {
-    if os.Getenv("DEBUG") == "true" { log.Println("Connection Upgrader error: " + err.Error()) }
+    log.WithFields(log.Fields{"error": err.Error()}).Warn("Can't upgrade connection")
     w.Write([]byte(err.Error()))
     return
   }

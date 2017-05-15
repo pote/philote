@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  log "github.com/sirupsen/logrus"
 
   "github.com/gorilla/websocket"
   "github.com/satori/go.uuid"
@@ -28,7 +28,10 @@ func (p *Philote) Listen() {
   for {
     message := &Message{}
     err := p.ws.ReadJSON(&message); if err != nil {
-      p.logMsg("Invalid client message data: %s", err.Error() )
+      log.WithFields(log.Fields{
+        "philote": p.ID,
+        "channel": message.Channel,
+        "error": err.Error()}).Info("Invalid client message data")
       if err.Error() == "EOF" {
         p.Hive.Disconnect <- p
         break
@@ -37,19 +40,19 @@ func (p *Philote) Listen() {
       }
     }
 
-    p.logMsg("Received message from socket in channel " + message.Channel)
+    log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Info("Received message from socet")
 
     if p.AccessKey.CanWrite(message.Channel) {
       go p.publish(message)
     } else {
-      p.logMsg("Client does not have write permission for channel " + message.Channel + ", message dropped")
+      log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Warn("Message dropped")
     }
   }
 }
 
 func (p *Philote) disconnect() {
   p.publish(&Message{Event: "close"})
-  p.logMsg("Closing Philote")
+  log.WithFields(log.Fields{"philote": p.ID}).Info("Closing Philote")
   p.ws.Close()
 }
 
@@ -68,8 +71,4 @@ func (p *Philote) publish(message *Message) {
       }
     }
   }
-}
-
-func (p *Philote) logMsg(message string, args ...interface{}) {
-  log.Printf("[" + p.ID + "] " + message + "\n", args...)
 }
