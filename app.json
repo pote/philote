@@ -1,0 +1,16 @@
+{
+  "name": "Philote",
+  "description": "A plug-and-play websockets server",
+  "repository": "https://github.com/pote/philote",
+  "keywords": ["golang", "websockets"],
+  "buildpacks": [
+    {
+      "url": "https://github.com/lucasefe/heroku-buildpack-go"
+    }
+  ],
+  "env": {
+    "JWT_SECRET": {
+      "description": "The secret auth salt shared between Philote and your clients",
+      "value": ""
+    },
+}
