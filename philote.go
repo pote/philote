@@ -12,25 +12,25 @@ type Philote struct {
   AccessKey  *AccessKey
   Hive       *hive
   ws         *websocket.Conn
-  done       chan bool
 }
 
 func NewPhilote(ak *AccessKey, ws *websocket.Conn) (*Philote) {
-  return &Philote{
+  p := &Philote{
     ws:    ws,
-    done: make(chan bool),
     ID: uuid.NewV4().String(),
     AccessKey: ak,
   }
+
+  return p
 }
 
-func (p *Philote) ListenToSocket() {
+func (p *Philote) Listen() {
   for {
     message := &Message{}
     err := p.ws.ReadJSON(&message); if err != nil {
       p.logMsg("Invalid client message data: %s", err.Error() )
       if err.Error() == "EOF" {
-        p.disconnect()
+        p.Hive.Disconnect <- p
         break
       } else {
         continue
@@ -49,13 +49,8 @@ func (p *Philote) ListenToSocket() {
 
 func (p *Philote) disconnect() {
   p.publish(&Message{Event: "close"})
-  p.logMsg("Disconnecting from client")
-  close(p.done)
-}
-
-func (p *Philote) Wait() {
-  <-p.done
-  p.logMsg("Disconnected")
+  p.logMsg("Closing Philote")
+  p.ws.Close()
 }
 
 func (p *Philote) publish(message *Message) {

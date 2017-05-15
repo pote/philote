@@ -1,24 +1,33 @@
 package main
 
+import(
+)
+
 type hive struct {
-  Philotes []*Philote
-  NewPhilotes chan *Philote
+  Philotes    map[string]*Philote
+  Connect     chan *Philote
+  Disconnect  chan *Philote
 }
 
 func NewHive() (*hive) {
-  h := &hive{Philotes: []*Philote{}}
+  h := &hive{Philotes: map[string]*Philote{}}
 
-  go h.RegisterNewPhilotes()
+  go h.MaintainPhiloteIndex()
 
   return h
 }
 
-func (h *hive) RegisterNewPhilotes() {
+func (h *hive) MaintainPhiloteIndex() {
   for {
-    philote := <- h.NewPhilotes
-
-    philote.Hive = h
-    h.Philotes = append(h.Philotes, philote)
+    select {
+    case p := <- h.Connect:
+      p.Hive = h
+      h.Philotes[p.ID] = p
+      go p.Listen()
+    case p := <- h.Disconnect:
+      delete(h.Philotes, p.ID)
+      p.disconnect()
+    }
   }
 }
 
