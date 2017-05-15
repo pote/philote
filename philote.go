@@ -40,7 +40,7 @@ func (p *Philote) Listen() {
     // Ensure no tampering with message data
     message.IssuerID = p.ID
 
-    log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Debug("Received message from socet")
+    log.WithFields(log.Fields{"philote": p.ID, "channel": message.Channel}).Debug("Received message from socket")
 
     if p.AccessKey.CanWrite(message.Channel) {
       go p.publish(message)
