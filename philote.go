@@ -48,7 +48,6 @@ func (p *Philote) Listen() {
       log.WithFields(log.Fields{
         "philote": p.ID,
         "channel": message.Channel,
-        "event": message.Event,
         "data": message.Data,
       }).Info("Message dropped due to insufficient write permissions")
     }

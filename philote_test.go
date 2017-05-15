@@ -42,7 +42,7 @@ func TestPhilotesExchangingMessages(t *testing.T) {
   if len(h.Philotes) != 2 {
     t.Error("Both philotes should be connected and registered")
   }
-  originalMessage := &Message{Event: "message", Data: "yo!", Channel: "test-channel"}
+  originalMessage := &Message{Data: "yo!", Channel: "test-channel"}
 
   go func() { time.Sleep(time.Second); conn1.WriteJSON(originalMessage) }()
 
@@ -52,9 +52,6 @@ func TestPhilotesExchangingMessages(t *testing.T) {
   }
 
   if receivedMessage.Data != "yo!" {
-    t.Error("incorrect message data")
-  }
-  if receivedMessage.Event != "message" {
     t.Error("incorrect message data")
   }
 }
