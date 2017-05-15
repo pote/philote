@@ -1,6 +1,5 @@
 PROGNAME ?= philote
 SOURCES = *.go src/**/*.go
-LUA_SOURCES = $(patsubst lua/%.lua,src/lua/scripts/%.go,$(wildcard lua/*.lua))
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
@@ -14,6 +13,7 @@ bin/philote-admin: admin/*.go
 
 server: $(PROGNAME)
 	./bin/$(PROGNAME)
+
 test: $(PROGNAME) $(SOURCES)
 	LOG=error go test
 
@@ -28,38 +28,24 @@ cross-compile: clean
 config.mk:
 	@./configure
 
-install: philote bin/philote-admin
+install: philote
 	install -d $(prefix)/bin
 	install -m 0755 bin/philote /usr/local/bin
-	install -m 0755 bin/philote-admin /usr/local/bin
 
 uninstall:
 	rm -f $(prefix)/bin/philote
-	rm -f $(prefix)/bin/philote-admin
 
 $(DEPS): Godeps | $(dir $(DEPS))
 	$(GPM) get
 	touch $@
 
 ##
-# Lua Scripts -> Go files
-##
-
-src/lua/scripts/%.go: src/lua/scripts lua/%.lua
-	./script/asset_to_go "$*"
-
-##
 # Directories
 ##
 
-src/lua/scripts bin:
+$(dir $(PROGNAME)) $(dir $(DEPS)) bin:
 	mkdir -p $@
 
-$(dir $(DEPS)):
-	mkdir -p $@
-
-$(dir $(PROGNAME)):
-	mkdir -p $@
 
 ##
 # You're a PHONY! Just a big, fat PHONY.

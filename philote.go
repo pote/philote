@@ -31,8 +31,7 @@ func (p *Philote) Listen() {
     err := p.ws.ReadJSON(&message); if err != nil {
       log.WithFields(log.Fields{
         "philote": p.ID,
-        "channel": message.Channel,
-        "error": err.Error()}).Warn("Invalid client message data")
+        "error": err.Error()}).Warn("Error reading from socket, disconnecting")
 
       p.Hive.Disconnect <- p
       break
