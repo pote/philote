@@ -6,7 +6,7 @@ GPM ?= gpm
 -include config.mk
 
 all:
-	go build -o bin/philote && bin/philote
+	go build -o bin/philote
 
 $(PROGNAME):  bin $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o bin/$(PROGNAME)
