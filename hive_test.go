@@ -12,7 +12,8 @@ import(
 )
 
 func TestHiveSuccessfulPhiloteRegistration(t *testing.T) {
-  if len(Hive.Philotes) != 0 {
+  h := NewHive()
+  if len(h.Philotes) != 0 {
     t.Error("new Hive shouldn't have registered philotes")
   }
 
@@ -25,7 +26,7 @@ func TestHiveSuccessfulPhiloteRegistration(t *testing.T) {
     t.Fatal(err)
   }
 
-  server := httptest.NewServer(http.HandlerFunc(ServeNewConnection))
+  server := httptest.NewServer(http.HandlerFunc(h.ServeNewConnection))
   header := map[string][]string{
     "Authorization": []string{"Bearer " + tokenString},
   }
@@ -35,18 +36,19 @@ func TestHiveSuccessfulPhiloteRegistration(t *testing.T) {
     t.Error(err)
   }
 
-  time.Sleep(1)
-  if len(Hive.Philotes) != 1 {
+  time.Sleep(time.Second)
+  if len(h.Philotes) != 1 {
     t.Error("philote should  be registered on successful auth")
   }
 }
 
 func TestHiveIncorrectAuth(t *testing.T) {
-  if len(Hive.Philotes) != 0 {
+  h := NewHive()
+  if len(h.Philotes) != 0 {
     t.Error("new Hive shouldn't have registered philotes")
   }
 
-  server := httptest.NewServer(http.HandlerFunc(ServeNewConnection))
+  server := httptest.NewServer(http.HandlerFunc(h.ServeNewConnection))
   header := map[string][]string{
     "Authorization": []string{"Bearer " + "foo"},
   }
@@ -56,24 +58,25 @@ func TestHiveIncorrectAuth(t *testing.T) {
     t.Error("The Dial action should fail when there is no auth token")
   }
 
-  if len(Hive.Philotes) != 0 {
+  if len(h.Philotes) != 0 {
     t.Error("philote should not be registered when missing auth")
   }
 }
 
 func TestHivePhiloteRegistrationWithNoAuth(t *testing.T) {
-  if len(Hive.Philotes) != 0 {
+  h := NewHive()
+  if len(h.Philotes) != 0 {
     t.Error("new Hive shouldn't have registered philotes")
   }
 
-  server := httptest.NewServer(http.HandlerFunc(ServeNewConnection))
+  server := httptest.NewServer(http.HandlerFunc(h.ServeNewConnection))
   u, _ := url.Parse(server.URL)
   u.Scheme = "ws"
   _, _, err := websocket.DefaultDialer.Dial(u.String(), nil); if err == nil {
     t.Error("The Dial action should fail when there is no auth token")
   }
 
-  if len(Hive.Philotes) != 0 {
+  if len(h.Philotes) != 0 {
     t.Error("philote should not be registered when missing auth")
   }
 }

@@ -25,6 +25,7 @@ func NewPhilote(ak *AccessKey, ws *websocket.Conn) (*Philote) {
 }
 
 func (p *Philote) Listen() {
+  log.WithFields(log.Fields{"philote": p.ID}).Debug("Listening to Philote")
   for {
     message := &Message{}
     err := p.ws.ReadJSON(&message); if err != nil {
