@@ -5,13 +5,11 @@ GPM ?= gpm
 
 -include config.mk
 
-all: server
+all:
+	go build -o bin/philote && bin/philote
 
 $(PROGNAME):  bin $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o bin/$(PROGNAME)
-
-run-server:
-	go build -o bin/philote && ./bin/philote
 
 server: $(PROGNAME)
 	./bin/$(PROGNAME)
