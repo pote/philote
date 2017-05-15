@@ -1,9 +1,11 @@
 PROGNAME ?= philote
-SOURCES = *.go src/**/*.go
+SOURCES = *.go
 DEPS = $(firstword $(subst :, ,$(GOPATH)))/up-to-date
 GPM ?= gpm
 
 -include config.mk
+
+all: server
 
 $(PROGNAME):  bin $(SOURCES) $(DEPS) | $(dir $(PROGNAME))
 	go build -o bin/$(PROGNAME)
