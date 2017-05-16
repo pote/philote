@@ -25,7 +25,7 @@ There are three configuration options for Philote, all of which have sensible de
 |:-----------------------:|:-------------------------:|:-------------------------------------------------------------------------------------------------------------------|
 | `SECRET`                | ` `                       | Secret salt used to sign authentication tokens, this secret needs to be known to the clients in order to connect   |
 | `PORT`                  | `6380`                    | Port in which to serve websocket connections                                                                       |
-| `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug|info|warning|error|fatal|panic]                                  |
+| `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug,info,warning,error,fatal,panic]                                  |
 | `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
 | `READ_BUFFER_SIZE`      | `1024`                    | Size of the websocket read buffer, for most cases the default should be okay.                                      |
 | `WRITE_BUFFER_SIZE`     | `1024`                    | Size of the websocket write buffer, for most cases the default should be okay.                                      |
