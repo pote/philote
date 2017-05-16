@@ -38,6 +38,9 @@ $ PORT=9424 philote
 
 ## Clients
 
+* [JavaScript (browser compatible)](https://github.com/13Floor/philote-js)
+* [Go](https://github.com/pote/philote-go)
+
 ## Authentication
 
 ## Local development
