@@ -9,10 +9,9 @@ import (
 )
 
 var Config *config = LoadConfig()
-// TODO: These buffer sizes should be configurable.
 var Upgrader = websocket.Upgrader{
-  ReadBufferSize:  1024,
-  WriteBufferSize: 1024,
+  ReadBufferSize:  Config.readBufferSize,
+  WriteBufferSize: Config.writeBufferSize,
 }
 
 func main() {
@@ -20,6 +19,11 @@ func main() {
     "version": VERSION,
     "port": Config.port,
     "cores": runtime.NumCPU()}).Info("Initializing Philotic Network")
+
+  log.WithFields(log.Fields{
+    "read-buffer-size": Config.readBufferSize,
+    "write-buffer-size": Config.writeBufferSize,
+    "max-connections": Config.maxConnections}).Debug("Configuration options:")
 
   h := NewHive()
   http.HandleFunc("/", h.ServeNewConnection)
