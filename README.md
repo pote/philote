@@ -7,7 +7,9 @@ Simplicity is one of the design goals for Philote, ease of deployment is another
 
 ## Philote in action
 
-This gif shows a sample command line chat application that connects to a Philote instance and enables users to exchange messages.
+This gif shows a [sample command line chat application](https://github.com/pote/jane) that connects to a Philote instance and enables users to exchange messages, this command line application uses the [Go philote client](#clients).
+
+![sample](https://stuff.pote.io/Screen-Recording-2017-05-16-15-50-30-5ivJp0cbze.gif)
 
 ### Deploy your own instance
 
