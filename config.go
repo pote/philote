@@ -16,9 +16,9 @@ type config struct {
 func LoadConfig() (*config) {
   c := &config{}
 
-  jwtSecret := envflag.String("JWT_SECRET", "", "JWT secret used to validate access keys.")
+  jwtSecret := envflag.String("SECRET", "", "JWT secret used to validate access keys.")
   port := envflag.String("PORT", "6380", "Port in which to serve Philote websocket connections")
-  logLevel := envflag.String("LOG", "info", "Log level, accepts: 'debug', 'info', 'warning', 'error', 'fatal', 'panic'")
+  logLevel := envflag.String("LOGLEVEL", "info", "Log level, accepts: 'debug', 'info', 'warning', 'error', 'fatal', 'panic'")
   envflag.Parse()
 
   c.jwtSecret = []byte(*jwtSecret)

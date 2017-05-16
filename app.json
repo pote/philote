@@ -9,9 +9,13 @@
     }
   ],
   "env": {
-    "JWT_SECRET": {
+    "SECRET": {
       "description": "The secret auth salt shared between Philote and your clients",
       "value": ""
+    },
+    "LOGLEVEL": {
+      "description": "Change for more or less verbose output [debug|info|warning|error|panic]",
+      "value": "info"
     }
   }
 }
