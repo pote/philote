@@ -23,7 +23,7 @@ There are three configuration options for Philote, all of which have sensible de
 
 | Environment Variable    | Default                   | Description                                                                                                        |
 |:-----------------------:|:-------------------------:|:-------------------------------------------------------------------------------------------------------------------|
-| `SECRET`                | ``                        | Secret salt used to sign authentication tokens, this secret needs to be known to the clients in order to connect   |
+| `SECRET`                | ` `                       | Secret salt used to sign authentication tokens, this secret needs to be known to the clients in order to connect   |
 | `PORT`                  | `6380`                    | Port in which to serve websocket connections                                                                       |
 | `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug|info|warning|error|fatal|panic]                                  |
 | `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
@@ -54,7 +54,7 @@ You'll need [gpm](https://github.com/pote/gpm) for dependency management.
 
 ``` bash
 $ source .env.sample # you might want to copy it to .env and source that instead if you plan on changing the settings.
-$ make 
+$ make
 ```
 
 ### Run a Philote server
