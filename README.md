@@ -4,10 +4,9 @@ Philote is a minimal solution to the websockets server problem, it implements Pu
 
 Simplicity is one of the design goals for Philote, ease of deployment is another: you should be able to drop the binary in any internet-accessible server and have it operational.
 
-
 ## Philote in action
 
-This gif shows a [sample command line chat application](https://github.com/pote/jane) that connects to a Philote instance and enables users to exchange messages, this command line application uses the [Go philote client](#clients).
+This gif shows a [sample command line application](#cli) that connects to a Philote instance and enables users to exchange messages, this command line application uses the [Go philote client](#clients).
 
 ![sample](https://stuff.pote.io/Screen-Recording-2017-05-16-15-50-30-5ivJp0cbze.gif)
 
@@ -36,12 +35,20 @@ If the defaults work for you, simply running `philote` will start the server wit
 $ PORT=9424 philote
 ```
 
+## CLI
+
+There is a trivial implementation of basic Philote interaction called [Jane](https://github.com/pote/jane) that you can run locally, it can subscribe to a channel on a Philote server, receive messages and publish. It's useful for debugging purposes.
+
+![sample](https://stuff.pote.io/Screen-Recording-2017-05-16-15-50-30-5ivJp0cbze.gif)
+
 ## Clients
 
 * [JavaScript (browser compatible)](https://github.com/13Floor/philote-js)
 * [Go](https://github.com/pote/philote-go)
 
 ## Authentication
+
+
 
 ## Local development
 
