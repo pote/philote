@@ -15,7 +15,7 @@ server: $(PROGNAME)
 	./bin/$(PROGNAME)
 
 test: $(PROGNAME) $(SOURCES)
-	LOG=error go test
+	LOGLEVEL=error go test
 
 clean:
 	rm -rf pkg/
