@@ -4,11 +4,7 @@ Philote is a minimal solution to the websockets server problem, it implements Pu
 
 Simplicity is one of the design goals for Philote, ease of deployment is another: you should be able to drop the binary in any internet-accessible server and have it operational.
 
-## Philote in action
-
-This gif shows a [sample command line application](#cli) that connects to a Philote instance and enables users to exchange messages, this command line application uses the [Go philote client](#clients).
-
-![sample](https://stuff.pote.io/Screen-Recording-2017-05-16-15-50-30-5ivJp0cbze.gif)
+For a short demonstration, check out the sample command line Philote client called [Jane](#cli)
 
 ### Deploy your own instance
 
