@@ -31,6 +31,11 @@ func (h *hive) MaintainPhiloteIndex() {
   for {
     select {
     case p := <- h.Connect:
+      if len(h.Philotes) >= Config.maxConnections {
+        log.WithFields(log.Fields{"philote": p.ID}).Warn("MAX_CONNECTIONS limit reached, dropping new connection")
+        p.disconnect()
+      }
+
       log.WithFields(log.Fields{"philote": p.ID}).Debug("Registering Philote")
       p.Hive = h
       h.Philotes[p.ID] = p
