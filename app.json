@@ -16,6 +16,18 @@
     "LOGLEVEL": {
       "description": "Change for more or less verbose output [debug|info|warning|error|panic]",
       "value": "info"
+    },
+    "MAX_CONNECTIONS": {
+      "description": "Maximum amount of concurrent websocket connections allowed",
+      "value": "255"
+    },
+    "READ_BUFFER_SIZE": {
+      "description": "Size of the websocket read buffer, for most cases the default should be okay",
+      "value": "1024"
+    },
+    "WRITE_BUFFER_SIZE": {
+      "description": "Size of the websocket write buffer, for most cases the default should be okay",
+      "value": "1024"
     }
   }
 }

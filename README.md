@@ -1,27 +1,32 @@
 # Philote:  plug-and-play websockets server
 
-Philote is a minimal solution to the websockets server problem
+Philote is a minimal solution to the websockets server problem, it implements Publish/Subscribe and has a simple authentication mechanism that accomodates browser clients securely as well as server-side or even local applications.
 
-### Notice:
-
-Philote used to be powered by Redis's PUB/SUB capabilities, it's been rewritten to do all the work itself (it takes, surprisingly, less code to do the latter), this project is still in alpha so please handle with care.
+Simplicity is one of the design goals for Philote, ease of deployment is another: you should be able to drop the binary in any internet-accessible server and have it operational.
 
 
-## Deploy your own instance
+## Philote in action
+
+This gif shows a sample command line chat application that connects to a Philote instance and enables users to exchange messages.
+
+### Deploy your own instance
+
+You can play around with Philote by deploying it on Heroku for free, keep in mind that Heroku's free tier dynos are not suited for production Philote usage, however, as sleeping dynos will mean websocket connections are closed.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-### Installing it
-
-A homebrew package is in the works, for now you can check out the [latest release](https://github.com/pote/philote/releases) and download the appropriate binary, or [install from source](#install-from-source)
-
-### Running the server
+### Configuration options
 
 There are three configuration options for Philote, all of which have sensible defaults and can be set by setting their respective environment variable.
 
-| Environment Variable    | Default                   | Description                                    |
-|:-----------------------:|:-------------------------:|:-----------------------------------------------|
-| `PORT`                  | `6380`                    | Port in which to serve websocket connections   | 
+| Environment Variable    | Default                   | Description                                                                                                        |
+|:-----------------------:|:-------------------------:|:-------------------------------------------------------------------------------------------------------------------|
+| `SECRET`                | ``                        | Secret salt used to sign authentication tokens, this secret needs to be known to the clients in order to connect   |
+| `PORT`                  | `6380`                    | Port in which to serve websocket connections                                                                       |
+| `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug|info|warning|error|fatal|panic]                                  |
+| `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
+| `READ_BUFFER_SIZE`      | `1024`                    | Size of the websocket read buffer, for most cases the default should be okay.                                      |
+| `WRITE_BUFFER_SIZE`     | `1024`                    | Size of the websocket write buffer, for most cases the default should be okay.                                      |
 
 If the defaults work for you, simply running `philote` will start the server with the default values, or you can just manipulate the environment and run with whatever settings you need.
 
@@ -31,11 +36,13 @@ $ PORT=9424 philote
 
 ## Clients
 
-The only official client for Philote at the time of this writing is [philote-js](https://github.com/13floor/philote-js), as the primary use case are browser clients. Philote websocket's facilities are fairly standard though, so I expect clients in other languages should be straightforward to implement.
-
 ## Authentication
 
 ## Local development
+
+### Installing it
+
+A homebrew package is in the works, for now you can check out the [latest release](https://github.com/pote/philote/releases) and download the appropriate binary, or [install from source](#install-from-source)
 
 ### Bootstrap it
 
@@ -65,6 +72,14 @@ $ make test
 ```bash
 $ make install
 ```
+
+## History
+
+The first versions of Philote were powered by Redis, it was initially thought of as a websocket bridge to a Redis instance.
+
+After a while, that design was considered inpractical: redis is a big dependency to have, publish/subscribe was easy to implement in Philote itself and the authentication mechanism was changed to use JSON Web Tokens, making Redis unnecessary.
+
+The result should be a more robust tool that anyone can drop in any operating system and get working trivially, without external dependencies.
 
 ## License
 
