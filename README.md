@@ -24,7 +24,7 @@ There are three configuration options for Philote, all of which have sensible de
 
 | Environment Variable    | Default                   | Description                                                                                                        |
 |:-----------------------:|:-------------------------:|:-------------------------------------------------------------------------------------------------------------------|
-| `SECRET`                | ` `                       | Secret salt used to sign authentication tokens, this secret needs to be known to the clients in order to connect   |
+| `SECRET`                | ` `                       | Secret salt used to sign authentication tokens                                                                     |
 | `PORT`                  | `6380`                    | Port in which to serve websocket connections                                                                       |
 | `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug,info,warning,error,fatal,panic]                                  |
 | `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
