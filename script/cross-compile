@@ -8,7 +8,7 @@ while read os arch; do
 
   GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote       &&
     cd pkg && tar -zcvf "$identifier".tar.gz "$identifier"     &&
-    cd ..
+    rm -rf "$identifier" && cd ..
 done << EOF
 darwin 386
 darwin amd64
