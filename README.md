@@ -8,7 +8,7 @@ For a short demonstration, check out the sample command line Philote client call
 
 ## Basics
 
-Philote implements a basic [Publish-subscribe pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern), messages sent over the websocket connection are classified into `channels`, and each connection is given read/write access to a given list of channels at authentication time.
+Philote implements a basic topic-based [Publish-subscribe pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern), messages sent over the websocket connection are classified into `channels`, and each connection is given read/write access to a given list of channels at authentication time.
 
 Messages sent over a connection for a given channel (to which it has write permission) will be received by all other connections (that have read permission to the channel in question).
 
