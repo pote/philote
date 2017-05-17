@@ -41,7 +41,7 @@ func TestHiveSuccessfulPhiloteRegistration(t *testing.T) {
   }
 }
 
-func TestHiveSuccessfulPhiloteRegistrationWithSecWebsocketProtocolHeader(t *testing.T) {
+func TestHiveSuccessfulPhiloteRegistrationWithQuerystring(t *testing.T) {
   h := NewHive()
   if len(h.Philotes) != 0 {
     t.Error("new Hive shouldn't have registered philotes")
@@ -57,12 +57,14 @@ func TestHiveSuccessfulPhiloteRegistrationWithSecWebsocketProtocolHeader(t *test
   }
 
   server := httptest.NewServer(http.HandlerFunc(h.ServeNewConnection))
-  header := map[string][]string{
-    "Sec-WebSocket-Protocol": []string{tokenString},
-  }
+
   u, _ := url.Parse(server.URL)
+  q := u.Query()
+  q.Set("auth", tokenString)
+  u.RawQuery = q.Encode()
   u.Scheme = "ws"
-  _, _, err = websocket.DefaultDialer.Dial(u.String(), header); if err != nil {
+
+  _, _, err = websocket.DefaultDialer.Dial(u.String(), nil); if err != nil {
     t.Error(err)
   }
 

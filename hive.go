@@ -49,13 +49,15 @@ func (h *hive) MaintainPhiloteIndex() {
 }
 
 func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
-  auth := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+  auth := strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer"))
   if auth == "" {
-    auth = r.Header.Get("Sec-WebSocket-Protocol")
+    r.ParseForm()
+    auth = r.Form.Get("auth")
+    log.WithFields(log.Fields{"auth": auth}).Debug("Empty Authorization header, trying querystring #auth param")
   }
 
   accessKey, err := NewAccessKey(auth); if err != nil {
-    log.WithFields(log.Fields{"error": err.Error()}).Warn("Can't create Access key")
+    log.WithFields(log.Fields{"error": err.Error(), "auth": auth }).Warn("Can't create Access key")
     w.Write([]byte(err.Error()))
     return
   }
