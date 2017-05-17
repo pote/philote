@@ -6,6 +6,12 @@ Simplicity is one of the design goals for Philote, ease of deployment is another
 
 For a short demonstration, check out the sample command line Philote client called [Jane](#cli)
 
+## Basics
+
+Philote implements a basic [Publish-subscribe pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern), messages sent over the websocket connection are classified into `channels`, and each connection is given read/write access to a given list of channels at authentication time.
+
+Messages sent over a connection for a given channel (to which it has write permission) will be received by all other connections (that have read permission to the channel in question).
+
 ### Deploy your own instance
 
 You can play around with Philote by deploying it on Heroku for free, keep in mind that Heroku's free tier dynos are not suited for production Philote usage, however, as sleeping dynos will mean websocket connections are closed.
@@ -23,7 +29,8 @@ There are three configuration options for Philote, all of which have sensible de
 | `LOGLEVEL`              | `info`                    | Verbosity of log output, valid options are [debug,info,warning,error,fatal,panic]                                  |
 | `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
 | `READ_BUFFER_SIZE`      | `1024`                    | Size of the websocket read buffer, for most cases the default should be okay.                                      |
-| `WRITE_BUFFER_SIZE`     | `1024`                    | Size of the websocket write buffer, for most cases the default should be okay.                                      |
+| `WRITE_BUFFER_SIZE`     | `1024`                    | Size of the websocket write buffer, for most cases the default should be okay.                                     |
+| `CHECK_ORIGIN`          | `false                    | Check Origin headers during WebSocket upgrade handshake.                                                           |
 
 If the defaults work for you, simply running `philote` will start the server with the default values, or you can just manipulate the environment and run with whatever settings you need.
 
@@ -33,7 +40,7 @@ $ PORT=9424 philote
 
 ## CLI
 
-There is a trivial implementation of basic Philote interaction called [Jane](https://github.com/pote/jane) that you can run locally, it can subscribe to a channel on a Philote server, receive messages and publish. It's useful for debugging purposes.
+There is a trivial implementation of basic Philote interaction called [Jane](https://github.com/pote/jane) that you can run locally, it can subscribe to a channel on a Philote server, receive and publish messages. It's useful for debugging purposes.
 
 ![sample](https://stuff.pote.io/Screen-Recording-2017-05-16-15-50-30-5ivJp0cbze.gif)
 
@@ -44,7 +51,11 @@ There is a trivial implementation of basic Philote interaction called [Jane](htt
 
 ## Authentication
 
+Clients authenticate in Philote using [JSON Web Tokens](https://jwt.io), which consist on a JSON payload detailing the read/write permissions a given connection will have. The payload is hashed with a secret known to Philote so that incoming connections can be verified, this way you can generate tokens in your application backend and use them from the browser client without fear.
 
+Clients in different language will provide methods to generate these tokens, for now, the [Go client](https://github.com/pote/philote-go/blob/master/token.go) should be the reference implementation, although you'll notice that it's an extremely simple one so ports to other languages should be trivial to implement provided with a decent JWT library.
+
+For incoming websockets connections, Philote will look to find the authentication token in the `Authorization` header, but since the native browser JavaScript WebSocket API does not provide a way to manipulate the request headers Philote will also look for the `auth` query parameter in case it fails to authenticate using the header option.
 
 ## Local development
 
