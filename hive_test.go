@@ -41,6 +41,36 @@ func TestHiveSuccessfulPhiloteRegistration(t *testing.T) {
   }
 }
 
+func TestHiveSuccessfulPhiloteRegistrationWithSecWebsocketProtocolHeader(t *testing.T) {
+  h := NewHive()
+  if len(h.Philotes) != 0 {
+    t.Error("new Hive shouldn't have registered philotes")
+  }
+
+  token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+      "read": []string{"test-channel"},
+      "write": []string{"test-channel"},
+  })
+
+  tokenString, err := token.SignedString(Config.jwtSecret); if err != nil {
+    t.Fatal(err)
+  }
+
+  server := httptest.NewServer(http.HandlerFunc(h.ServeNewConnection))
+  header := map[string][]string{
+    "Sec-WebSocket-Protocol": []string{tokenString},
+  }
+  u, _ := url.Parse(server.URL)
+  u.Scheme = "ws"
+  _, _, err = websocket.DefaultDialer.Dial(u.String(), header); if err != nil {
+    t.Error(err)
+  }
+
+  if len(h.Philotes) != 1 {
+    t.Error("philote should  be registered on successful auth")
+  }
+}
+
 func TestHiveIncorrectAuth(t *testing.T) {
   h := NewHive()
   if len(h.Philotes) != 0 {
