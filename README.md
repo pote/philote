@@ -46,7 +46,7 @@ There is a trivial implementation of basic Philote interaction called [Jane](htt
 
 ## Clients
 
-* [JavaScript (browser compatible)](https://github.com/13Floor/philote-js)
+* [JavaScript (browser)](https://github.com/pote/philote-js)
 * [Go](https://github.com/pote/philote-go)
 
 ## Authentication
