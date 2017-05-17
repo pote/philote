@@ -28,6 +28,10 @@
     "WRITE_BUFFER_SIZE": {
       "description": "Size of the websocket write buffer, for most cases the default should be okay",
       "value": "1024"
+    },
+    "CHECK_ORIGIN": {
+      "description": "Verify Origin header on websocket handshake",
+      "value": "false"
     }
   }
 }
