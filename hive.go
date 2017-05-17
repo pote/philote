@@ -62,7 +62,7 @@ func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  connection, err := Upgrader.Upgrade(w, r, nil); if err != nil {
+  connection, err := Config.Upgrader.Upgrade(w, r, nil); if err != nil {
     log.WithFields(log.Fields{"error": err.Error()}).Warn("Can't upgrade connection")
     w.Write([]byte(err.Error()))
     return

@@ -12,6 +12,9 @@ var Config *config = LoadConfig()
 var Upgrader = websocket.Upgrader{
   ReadBufferSize:  Config.readBufferSize,
   WriteBufferSize: Config.writeBufferSize,
+  CheckOrigin: func(r *http.Request) bool {
+    return true
+  },
 }
 
 func main() {

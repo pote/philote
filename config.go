@@ -1,17 +1,21 @@
 package main
 
 import(
+  "net/http"
   log "github.com/sirupsen/logrus"
+  "github.com/gorilla/websocket"
   "github.com/ianschenck/envflag"
 )
 
 type config struct {
+  Upgrader        websocket.Upgrader
   jwtSecret       []byte
   port            string
   version         string
   readBufferSize  int
   writeBufferSize int
   maxConnections  int
+  checkOrigin     bool
   log             log.Level
 }
 
@@ -47,6 +51,11 @@ func LoadConfig() (*config) {
     1024,
     "Size (in bytes) for the write buffer")
 
+  checkOrigin := envflag.Bool(
+    "CHECK_ORIGIN",
+    false,
+    "Compare the Origin and Host request header during websocket handshake")
+
   envflag.Parse()
 
   c.jwtSecret = []byte(*secret)
@@ -54,6 +63,18 @@ func LoadConfig() (*config) {
   c.maxConnections = *maxConnections
   c.readBufferSize = *readBufferSize
   c.writeBufferSize = *writeBufferSize
+  c.checkOrigin = *checkOrigin
+
+  c.Upgrader = websocket.Upgrader{
+    ReadBufferSize:  c.readBufferSize,
+    WriteBufferSize: c.writeBufferSize,
+  }
+
+  if !c.checkOrigin {
+    c.Upgrader.CheckOrigin = func(r *http.Request) bool {
+      return true
+    }
+  }
 
   var err error
   c.log, err = log.ParseLevel(*logLevel); if err != nil {
