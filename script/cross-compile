@@ -6,10 +6,8 @@ while read os arch; do
   mkdir -p "$build_dir"
   echo "Compiling for $os/$arch"
 
-  GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote                &&
-    cd admin                                                            &&
-    GOOS=$os GOARCH=$arch go build -o "./../$build_dir"/philote-admin   &&
-    cd .. && cd pkg && tar -zcvf "$identifier".tar.gz "$identifier"     &&
+  GOOS=$os GOARCH=$arch go build -o "$build_dir"/philote       &&
+    cd pkg && tar -zcvf "$identifier".tar.gz "$identifier"     &&
     cd ..
 done << EOF
 darwin 386
