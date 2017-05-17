@@ -30,7 +30,7 @@ There are three configuration options for Philote, all of which have sensible de
 | `MAX_CONNECTIONS`       | `255`                     | Maximum amount of concurrent websocket connections allowed                                                         |
 | `READ_BUFFER_SIZE`      | `1024`                    | Size of the websocket read buffer, for most cases the default should be okay.                                      |
 | `WRITE_BUFFER_SIZE`     | `1024`                    | Size of the websocket write buffer, for most cases the default should be okay.                                     |
-| `CHECK_ORIGIN`          | `false                    | Check Origin headers during WebSocket upgrade handshake.                                                           |
+| `CHECK_ORIGIN`          | `false`                   | Check Origin headers during WebSocket upgrade handshake.                                                           |
 
 If the defaults work for you, simply running `philote` will start the server with the default values, or you can just manipulate the environment and run with whatever settings you need.
 
