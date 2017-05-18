@@ -63,6 +63,7 @@ For incoming websockets connections, Philote will look to find the authenticatio
 You can install Philote (and Jane) easily with homebrew.
 
 `brew install pote/philote/philote`
+
 `brew install pote/philote/jane`
 
 You can also manually get the binaries from [latest release](https://github.com/pote/philote/releases) or [install from source](#install-from-source)
