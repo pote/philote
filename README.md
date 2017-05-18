@@ -57,11 +57,18 @@ Clients in different language will provide methods to generate these tokens, for
 
 For incoming websockets connections, Philote will look to find the authentication token in the `Authorization` header, but since the native browser JavaScript WebSocket API does not provide a way to manipulate the request headers Philote will also look for the `auth` query parameter in case it fails to authenticate using the header option.
 
-## Local development
 
-### Installing it
+### Install
 
-A homebrew package is in the works, for now you can check out the [latest release](https://github.com/pote/philote/releases) and download the appropriate binary, or [install from source](#install-from-source)
+You can install Philote (and Jane) easily with homebrew.
+
+`brew install pote/philote/philote`
+`brew install pote/philote/jane`
+
+You can also manually get the binaries from [latest release](https://github.com/pote/philote/releases) or [install from source](#install-from-source)
+
+
+### Local development
 
 ### Bootstrap it
 
