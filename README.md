@@ -1,4 +1,4 @@
-# Philote:  plug-and-play websockets server
+# Philote:  plug-and-play websockets server ![Build status](https://travis-ci.org/pote/philote.svg)
 
 Philote is a minimal solution to the websockets server problem, it implements Publish/Subscribe and has a simple authentication mechanism that accomodates browser clients securely as well as server-side or even local applications.
 
