@@ -1,0 +1,10 @@
+language: go
+
+before_install:
+  - wget https://raw.githubusercontent.com/pote/gpm/v1.4.0/bin/gpm && chmod +x gpm && sudo mv gpm /usr/local/bin
+
+go:
+  - 1.x
+  - 1.6
+  - 1.7.x
+  - master
