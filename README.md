@@ -20,7 +20,7 @@ You can play around with Philote by deploying it on Heroku for free, keep in min
 
 ### Configuration options
 
-There are three configuration options for Philote, all of which have sensible defaults and can be changed by setting their respective environment variable.
+Philote takes configuration options from your environment and attempts to provide sensible defaults, these are the environment variables you can set to change it's behaviour:
 
 | Environment Variable    | Default                   | Description                                                                                                        |
 |:-----------------------:|:-------------------------:|:-------------------------------------------------------------------------------------------------------------------|
