@@ -9,6 +9,7 @@ import(
 type AccessKey struct {
   Read        []string `json:"read"`
   Write       []string `json:"write"`
+  API         bool     `json:"api"`
 
   jwt.StandardClaims
 }
@@ -27,6 +28,7 @@ func NewAccessKey(auth string) (*AccessKey, error) {
   if claims, ok := token.Claims.(*AccessKey); ok && token.Valid {
     ak.Read = claims.Read
     ak.Write = claims.Write
+    ak.API = !!claims.API
     return &ak, nil
   } else {
     return &ak, errors.New("invalid token")

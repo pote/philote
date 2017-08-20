@@ -48,7 +48,7 @@ func (h *hive) MaintainPhiloteIndex() {
   }
 }
 
-func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
+func (h *hive) Authenticate(r *http.Request) (*AccessKey, error) {
   auth := strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer"))
   if auth == "" {
     r.ParseForm()
@@ -56,8 +56,11 @@ func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
     log.WithFields(log.Fields{"auth": auth}).Debug("Empty Authorization header, trying querystring #auth param")
   }
 
-  accessKey, err := NewAccessKey(auth); if err != nil {
-    log.WithFields(log.Fields{"error": err.Error(), "auth": auth }).Warn("Can't create Access key")
+  return NewAccessKey(auth)
+}
+
+func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
+  accessKey, err := h.Authenticate(r); if err != nil {
     w.Write([]byte(err.Error()))
     return
   }
@@ -70,4 +73,18 @@ func (h *hive) ServeNewConnection(w http.ResponseWriter, r *http.Request) {
 
   philote := NewPhilote(accessKey, connection)
   h.Connect <- philote
+}
+
+func (h *hive) ServeAPICall(w http.ResponseWriter, r *http.Request) {
+  accessKey, err := h.Authenticate(r); if err != nil {
+    w.Write([]byte(err.Error()))
+    return
+  }
+
+  if !accessKey.API {
+   w.WriteHeader(401)
+    w.Write([]byte("Access Key does not grant API access"))
+  }
+
+  w.Write([]byte("success"))
 }

@@ -28,6 +28,28 @@ func TestNewAccessKey(t *testing.T) {
   if len(ak.Write) < 1 || ak.Write[0] != "test-channel" {
     t.Error("Access Key does not have proper write permissions")
   }
+
+  if ak.API {
+    t.Error("By default, access keys shouldn't allow API access")
+  }
+}
+
+func TestAPIAccessKey(t *testing.T) {
+  token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+    "api": true,
+  })
+
+  tokenString, err := token.SignedString(Config.jwtSecret); if err != nil {
+    t.Fatal(err)
+  }
+
+  ak, err := NewAccessKey(tokenString); if err != nil {
+    t.Fatal(err)
+  }
+
+  if !ak.API {
+    t.Error("Should be able to create HTTP API access keys")
+  }
 }
 
 func TestMultiChannelAccessKey(t *testing.T) {

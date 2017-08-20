@@ -30,6 +30,7 @@ func main() {
 
   h := NewHive()
   http.HandleFunc("/", h.ServeNewConnection)
+  http.HandleFunc("/api", h.ServeAPICall)
 
   err := http.ListenAndServe(":" + Config.port, nil); if err != nil {
     log.Fatal("ListenAndServe: ", err)
