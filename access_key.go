@@ -1,7 +1,6 @@
 package main
 
 import(
-  "fmt"
   "errors"
 
   "github.com/dgrijalva/jwt-go"
@@ -21,14 +20,15 @@ func NewAccessKey(auth string) (*AccessKey, error) {
     return Config.jwtSecret, nil
   }
 
-  token, err := jwt.ParseWithClaims(auth, &ak, verifyFunc)
-
-  return &ak, err
+  token, err := jwt.ParseWithClaims(auth, &ak, verifyFunc); if err != nil {
+    return &ak, err
+  }
 
   if claims, ok := token.Claims.(*AccessKey); ok && token.Valid {
-    fmt.Printf("%v %v", claims.Read, claims.Write)
+    ak.Read = claims.Read
+    ak.Write = claims.Write
+    return &ak, nil
   } else {
-    fmt.Println(err)
     return &ak, errors.New("invalid token")
   }
 
