@@ -2,9 +2,11 @@ package main
 
 import(
   "net/http"
-  log "github.com/sirupsen/logrus"
+  "time"
+
   "github.com/gorilla/websocket"
   "github.com/ianschenck/envflag"
+  log "github.com/sirupsen/logrus"
 )
 
 type config struct {
@@ -17,6 +19,7 @@ type config struct {
   maxConnections  int
   checkOrigin     bool
   log             log.Level
+  launchUnixTime  int64
 }
 
 
@@ -75,6 +78,8 @@ func LoadConfig() (*config) {
       return true
     }
   }
+
+  c.launchUnixTime = time.Now().Unix()
 
   var err error
   c.log, err = log.ParseLevel(*logLevel); if err != nil {
