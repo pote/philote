@@ -8,10 +8,11 @@ import (
 )
 
 type Philote struct {
-  ID         string
-  AccessKey  *AccessKey
-  Hive       *hive
-  ws         *websocket.Conn
+  ID               string
+  AccessKey        *AccessKey
+  Hive             *hive
+  ws               *websocket.Conn
+  IncomingMessages chan *Message
 }
 
 func NewPhilote(ak *AccessKey, ws *websocket.Conn) (*Philote) {
@@ -19,9 +20,21 @@ func NewPhilote(ak *AccessKey, ws *websocket.Conn) (*Philote) {
     ws:    ws,
     ID: uuid.NewV4().String(),
     AccessKey: ak,
+    IncomingMessages: make(chan *Message),
   }
 
+  go p.DistributeIncomingMessages()
+
   return p
+}
+
+func (p *Philote) DistributeIncomingMessages() {
+  var message *Message
+
+  for {
+    message = <- p.IncomingMessages
+    p.ws.WriteJSON(message)
+  }
 }
 
 func (p *Philote) Listen() {
@@ -69,9 +82,10 @@ func (p *Philote) publish(message *Message) {
 
     for _, channel := range philote.AccessKey.Read {
       if message.Channel == channel {
-        philote.ws.WriteJSON(message)
+        philote.IncomingMessages <- message
         break
       }
     }
+
   }
 }
