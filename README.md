@@ -48,6 +48,7 @@ There is a trivial implementation of basic Philote interaction called [Jane](htt
 
 * [JavaScript (browser)](https://github.com/pote/philote-js)
 * [Go](https://github.com/pote/philote-go)
+* [Python](https://github.com/taibende/pyphilote)
 
 ## Authentication
 
